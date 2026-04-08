@@ -5,7 +5,77 @@ type TokenPair = {
   refresh_token: string;
 };
 
+export type JWTPayload = {
+  sub: string;
+  type: string;
+  iat: number;
+  exp: number;
+  email?: string;
+  organization_id?: string;
+  role?: string;
+};
+
 const TOKENS_KEY = "blastpilot_tokens";
+const USER_KEY = "skillfort_user";
+
+/**
+ * Decode JWT token without verification (for frontend use only)
+ * Note: This does NOT verify the signature, so it's unsafe for security decisions
+ * Use only to read claims. Server will validate the token.
+ */
+export function decodeJWT(token: string): JWTPayload | null {
+  try {
+    const parts = token.split(".");
+    if (parts.length !== 3) {
+      return null;
+    }
+    const payload = parts[1];
+    const decoded = JSON.parse(atob(payload));
+    return decoded as JWTPayload;
+  } catch {
+    return null;
+  }
+}
+
+export type UserInfo = {
+  id: string;
+  email: string;
+  role: string;
+  organization_id: string;
+};
+
+export function extractUserFromToken(token: string): UserInfo | null {
+  const payload = decodeJWT(token);
+  if (!payload || !payload.sub || !payload.role) {
+    return null;
+  }
+  return {
+    id: payload.sub,
+    email: payload.email || "",
+    role: payload.role,
+    organization_id: payload.organization_id || "",
+  };
+}
+
+export function getStoredUser(): UserInfo | null {
+  const value = localStorage.getItem(USER_KEY);
+  if (!value) {
+    return null;
+  }
+  try {
+    return JSON.parse(value) as UserInfo;
+  } catch {
+    return null;
+  }
+}
+
+export function storeUser(user: UserInfo): void {
+  localStorage.setItem(USER_KEY, JSON.stringify(user));
+}
+
+export function clearUser(): void {
+  localStorage.removeItem(USER_KEY);
+}
 
 export function getStoredTokens(): TokenPair | null {
   const value = localStorage.getItem(TOKENS_KEY);
@@ -25,6 +95,7 @@ export function storeTokens(tokens: TokenPair): void {
 
 export function clearTokens(): void {
   localStorage.removeItem(TOKENS_KEY);
+  clearUser();
 }
 
 async function request(path: string, init: RequestInit = {}, retryOnAuth = true): Promise<Response> {
@@ -49,7 +120,7 @@ async function request(path: string, init: RequestInit = {}, retryOnAuth = true)
   return response;
 }
 
-export async function loginRequest(email: string, password: string): Promise<TokenPair> {
+export async function loginRequest(email: string, password: string): Promise<TokenPair & { user: UserInfo }> {
   const response = await fetch(`${API_BASE_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -62,7 +133,15 @@ export async function loginRequest(email: string, password: string): Promise<Tok
 
   const data = (await response.json()) as TokenPair;
   storeTokens(data);
-  return data;
+
+  // Extract user info from access token
+  const user = extractUserFromToken(data.access_token);
+  if (user) {
+    storeUser(user);
+    return { ...data, user };
+  }
+
+  throw new Error("Failed to extract user info from token");
 }
 
 export async function refreshToken(refresh_token: string): Promise<boolean> {
@@ -79,6 +158,13 @@ export async function refreshToken(refresh_token: string): Promise<boolean> {
 
   const data = (await response.json()) as TokenPair;
   storeTokens(data);
+
+  // Re-extract user info from new access token
+  const user = extractUserFromToken(data.access_token);
+  if (user) {
+    storeUser(user);
+  }
+
   return true;
 }
 

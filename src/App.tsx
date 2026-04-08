@@ -2,6 +2,7 @@ import { AnimatePresence } from "framer-motion";
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { MainLayout } from "./components/common/MainLayout";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 import { LmsStoreProvider } from "./context/LmsStore";
 import {
   AdminCoursesPage,
@@ -118,61 +119,64 @@ export function App() {
             <Route path="/payment-failed" element={<PaymentFailedPage />} />
             <Route path="/invoice/:id" element={<InvoicePage />} />
 
-            <Route path="/student/dashboard" element={<StudentDashboardPage />} />
-            <Route path="/student/enrolled-courses" element={<EnrolledCoursesPage />} />
-            <Route path="/student/progress" element={<ProgressSummaryPage />} />
-            <Route path="/student/recommendations" element={<RecommendationsPage />} />
-            <Route path="/student/my-courses" element={<MyCoursesPage />} />
-            <Route path="/student/wishlist" element={<WishlistPage />} />
-            <Route path="/student/certificates" element={<CertificatesPage />} />
-            <Route path="/student/profile-settings" element={<ProfileSettingsPage />} />
-            <Route path="/student/payments" element={<StudentPaymentsPage />} />
-            <Route path="/student/course-player/:slug" element={<CoursePlayerPage />} />
-            <Route path="/student/lesson/:slug/:lessonId" element={<LessonDetailPage />} />
-            <Route path="/student/resources/:slug" element={<DownloadResourcesPage />} />
-            <Route path="/student/quiz/:slug" element={<QuizPage />} />
-            <Route path="/student/quiz-result/:slug" element={<QuizResultPage />} />
-            <Route path="/student/assignment/:slug" element={<AssignmentSubmissionPage />} />
-            <Route path="/student/assignment-result/:slug" element={<AssignmentResultPage />} />
-            <Route path="/student/notifications" element={<NotificationsPage />} />
+            {/* Student Routes - Protected */}
+            <Route path="/student/dashboard" element={<ProtectedRoute requiredRoles={["viewer"]} component={StudentDashboardPage} />} />
+            <Route path="/student/enrolled-courses" element={<ProtectedRoute requiredRoles={["viewer"]} component={EnrolledCoursesPage} />} />
+            <Route path="/student/progress" element={<ProtectedRoute requiredRoles={["viewer"]} component={ProgressSummaryPage} />} />
+            <Route path="/student/recommendations" element={<ProtectedRoute requiredRoles={["viewer"]} component={RecommendationsPage} />} />
+            <Route path="/student/my-courses" element={<ProtectedRoute requiredRoles={["viewer"]} component={MyCoursesPage} />} />
+            <Route path="/student/wishlist" element={<ProtectedRoute requiredRoles={["viewer"]} component={WishlistPage} />} />
+            <Route path="/student/certificates" element={<ProtectedRoute requiredRoles={["viewer"]} component={CertificatesPage} />} />
+            <Route path="/student/profile-settings" element={<ProtectedRoute requiredRoles={["viewer"]} component={ProfileSettingsPage} />} />
+            <Route path="/student/payments" element={<ProtectedRoute requiredRoles={["viewer"]} component={StudentPaymentsPage} />} />
+            <Route path="/student/course-player/:slug" element={<ProtectedRoute requiredRoles={["viewer"]} component={CoursePlayerPage} />} />
+            <Route path="/student/lesson/:slug/:lessonId" element={<ProtectedRoute requiredRoles={["viewer"]} component={LessonDetailPage} />} />
+            <Route path="/student/resources/:slug" element={<ProtectedRoute requiredRoles={["viewer"]} component={DownloadResourcesPage} />} />
+            <Route path="/student/quiz/:slug" element={<ProtectedRoute requiredRoles={["viewer"]} component={QuizPage} />} />
+            <Route path="/student/quiz-result/:slug" element={<ProtectedRoute requiredRoles={["viewer"]} component={QuizResultPage} />} />
+            <Route path="/student/assignment/:slug" element={<ProtectedRoute requiredRoles={["viewer"]} component={AssignmentSubmissionPage} />} />
+            <Route path="/student/assignment-result/:slug" element={<ProtectedRoute requiredRoles={["viewer"]} component={AssignmentResultPage} />} />
+            <Route path="/student/notifications" element={<ProtectedRoute requiredRoles={["viewer"]} component={NotificationsPage} />} />
 
-            <Route path="/instructor/dashboard" element={<InstructorDashboardPage />} />
-            <Route path="/instructor/analytics" element={<InstructorAnalyticsPage />} />
-            <Route path="/instructor/courses" element={<InstructorCoursesPage />} />
-            <Route path="/instructor/courses/create" element={<CreateCoursePage />} />
-            <Route path="/instructor/courses/:slug/edit" element={<EditCoursePage />} />
-            <Route path="/instructor/course-builder/:slug" element={<CourseBuilderPage />} />
-            <Route path="/instructor/assessments/create-quiz" element={<CreateQuizPage />} />
-            <Route path="/instructor/assessments/add-questions" element={<AddQuestionsPage />} />
-            <Route path="/instructor/assessments/create-assignment" element={<AssignmentCreationPage />} />
-            <Route path="/instructor/assessments/evaluation" element={<EvaluationPage />} />
-            <Route path="/instructor/students" element={<InstructorStudentsPage />} />
-            <Route path="/instructor/students/:id/progress" element={<InstructorStudentProgressPage />} />
-            <Route path="/instructor/earnings" element={<EarningsPage />} />
-            <Route path="/instructor/payout-history" element={<PayoutHistoryPage />} />
-            <Route path="/instructor/settings/profile" element={<InstructorProfileSettingsPage />} />
-            <Route path="/instructor/settings/payment" element={<InstructorPaymentDetailsPage />} />
+            {/* Instructor/Trainer Routes - Protected */}
+            <Route path="/instructor/dashboard" element={<ProtectedRoute requiredRoles={["manager"]} component={InstructorDashboardPage} />} />
+            <Route path="/instructor/analytics" element={<ProtectedRoute requiredRoles={["manager"]} component={InstructorAnalyticsPage} />} />
+            <Route path="/instructor/courses" element={<ProtectedRoute requiredRoles={["manager"]} component={InstructorCoursesPage} />} />
+            <Route path="/instructor/courses/create" element={<ProtectedRoute requiredRoles={["manager"]} component={CreateCoursePage} />} />
+            <Route path="/instructor/courses/:slug/edit" element={<ProtectedRoute requiredRoles={["manager"]} component={EditCoursePage} />} />
+            <Route path="/instructor/course-builder/:slug" element={<ProtectedRoute requiredRoles={["manager"]} component={CourseBuilderPage} />} />
+            <Route path="/instructor/assessments/create-quiz" element={<ProtectedRoute requiredRoles={["manager"]} component={CreateQuizPage} />} />
+            <Route path="/instructor/assessments/add-questions" element={<ProtectedRoute requiredRoles={["manager"]} component={AddQuestionsPage} />} />
+            <Route path="/instructor/assessments/create-assignment" element={<ProtectedRoute requiredRoles={["manager"]} component={AssignmentCreationPage} />} />
+            <Route path="/instructor/assessments/evaluation" element={<ProtectedRoute requiredRoles={["manager"]} component={EvaluationPage} />} />
+            <Route path="/instructor/students" element={<ProtectedRoute requiredRoles={["manager"]} component={InstructorStudentsPage} />} />
+            <Route path="/instructor/students/:id/progress" element={<ProtectedRoute requiredRoles={["manager"]} component={InstructorStudentProgressPage} />} />
+            <Route path="/instructor/earnings" element={<ProtectedRoute requiredRoles={["manager"]} component={EarningsPage} />} />
+            <Route path="/instructor/payout-history" element={<ProtectedRoute requiredRoles={["manager"]} component={PayoutHistoryPage} />} />
+            <Route path="/instructor/settings/profile" element={<ProtectedRoute requiredRoles={["manager"]} component={InstructorProfileSettingsPage} />} />
+            <Route path="/instructor/settings/payment" element={<ProtectedRoute requiredRoles={["manager"]} component={InstructorPaymentDetailsPage} />} />
 
-            <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
-            <Route path="/admin/users" element={<UsersListPage />} />
-            <Route path="/admin/users/add" element={<AddEditUserPage />} />
-            <Route path="/admin/roles" element={<RoleManagementPage />} />
-            <Route path="/admin/courses" element={<AdminCoursesPage />} />
-            <Route path="/admin/courses/review" element={<CourseApprovalPage />} />
-            <Route path="/admin/categories" element={<CategoriesTagsPage />} />
-            <Route path="/admin/payments" element={<AdminPaymentsPage />} />
-            <Route path="/admin/refunds" element={<RefundManagementPage />} />
-            <Route path="/admin/invoices" element={<InvoiceManagementPage />} />
-            <Route path="/admin/certificates" element={<CertificatesManagementPage />} />
-            <Route path="/admin/quiz-monitoring" element={<QuizMonitoringPage />} />
-            <Route path="/admin/content/blogs" element={<BlogManagementPage />} />
-            <Route path="/admin/content/homepage" element={<HomepageControlPage />} />
-            <Route path="/admin/notifications/send" element={<SendNotificationsPage />} />
-            <Route path="/admin/notifications/templates" element={<NotificationTemplatesPage />} />
-            <Route path="/admin/settings/general" element={<GeneralSettingsPage />} />
-            <Route path="/admin/settings/payment-gateways" element={<PaymentGatewaySettingsPage />} />
-            <Route path="/admin/settings/email" element={<EmailConfigPage />} />
-            <Route path="/admin/settings/seo" element={<SeoSettingsPage />} />
+            {/* Admin Routes - Protected */}
+            <Route path="/admin/dashboard" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={AdminDashboardPage} />} />
+            <Route path="/admin/users" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={UsersListPage} />} />
+            <Route path="/admin/users/add" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={AddEditUserPage} />} />
+            <Route path="/admin/roles" element={<ProtectedRoute requiredRoles={["super_admin"]} component={RoleManagementPage} />} />
+            <Route path="/admin/courses" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={AdminCoursesPage} />} />
+            <Route path="/admin/courses/review" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={CourseApprovalPage} />} />
+            <Route path="/admin/categories" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={CategoriesTagsPage} />} />
+            <Route path="/admin/payments" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={AdminPaymentsPage} />} />
+            <Route path="/admin/refunds" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={RefundManagementPage} />} />
+            <Route path="/admin/invoices" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={InvoiceManagementPage} />} />
+            <Route path="/admin/certificates" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={CertificatesManagementPage} />} />
+            <Route path="/admin/quiz-monitoring" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={QuizMonitoringPage} />} />
+            <Route path="/admin/content/blogs" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={BlogManagementPage} />} />
+            <Route path="/admin/content/homepage" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={HomepageControlPage} />} />
+            <Route path="/admin/notifications/send" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={SendNotificationsPage} />} />
+            <Route path="/admin/notifications/templates" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={NotificationTemplatesPage} />} />
+            <Route path="/admin/settings/general" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={GeneralSettingsPage} />} />
+            <Route path="/admin/settings/payment-gateways" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={PaymentGatewaySettingsPage} />} />
+            <Route path="/admin/settings/email" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={EmailConfigPage} />} />
+            <Route path="/admin/settings/seo" element={<ProtectedRoute requiredRoles={["admin", "super_admin"]} component={SeoSettingsPage} />} />
 
             <Route path="/search" element={<SearchResultsPage />} />
             <Route path="/notifications" element={<UtilityNotificationsPage />} />
