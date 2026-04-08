@@ -2,21 +2,23 @@ import React, { useEffect } from 'react';
 
 export function MouseFluidEffect() {
   useEffect(() => {
-    // This is the exact working script from the reference
-    let canvas = document.getElementsByTagName("canvas")[0];
+    // Wait for canvas to be in the DOM
+    const canvas = document.querySelector('canvas');
 
     if (!canvas) {
-      console.error('❌ Canvas not found');
+      console.error('❌ Canvas element not found in DOM');
       return;
     }
 
-    // Set canvas dimensions
+    console.log('✅ Canvas element found:', canvas);
+
+    // Set canvas dimensions to full window size
     const width = window.innerWidth;
     const height = window.innerHeight;
     canvas.width = width;
     canvas.height = height;
 
-    console.log('✅ Canvas initialized:', { width, height });
+    console.log('✅ Canvas dimensions set:', { width, height });
 
     let config = {
       TEXTURE_DOWNSAMPLE: 1,
