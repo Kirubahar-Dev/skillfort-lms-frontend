@@ -3,8 +3,9 @@ import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 
 import { MainLayout } from "./components/common/MainLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { LoginModule } from "./modules/auth/LoginModule";
 import { LmsStoreProvider } from "./context/LmsStore";
+import { LoginPage } from "./pages/auth/LoginPage";
+import { SignupPage } from "./pages/auth/SignupPage";
 import {
   AdminCoursesPage,
   AdminDashboardPage,
@@ -30,7 +31,6 @@ import {
 import {
   ForgotPasswordPage,
   OtpVerificationPage,
-  SignupPage,
 } from "./pages/auth/AuthPages";
 import {
   CartPage,
@@ -107,7 +107,7 @@ export function App() {
             <Route path="/blog" element={<BlogPage />} />
             <Route path="/placements" element={<PlacementsPage />} />
 
-            <Route path="/login" element={<LoginModule />} />
+            <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/otp-verification" element={<OtpVerificationPage />} />
