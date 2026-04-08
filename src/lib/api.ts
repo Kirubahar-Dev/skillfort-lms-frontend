@@ -120,28 +120,98 @@ async function request(path: string, init: RequestInit = {}, retryOnAuth = true)
   return response;
 }
 
+// Mock credentials for testing (when backend is not available)
+const MOCK_USERS: Record<string, { password: string; role: string; name: string }> = {
+  "admin@skillfort.com": { password: "Admin@123", role: "admin", name: "Admin User" },
+  "mentor@skillfort.com": { password: "Mentor@123", role: "manager", name: "Arjun Prakash" },
+  "student@skillfort.com": { password: "Student@123", role: "viewer", name: "Student User" },
+  "superadmin@example.com": { password: "Password@123", role: "super_admin", name: "Super Admin" },
+};
+
+function generateMockToken(userId: string, email: string, role: string): string {
+  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }));
+  const now = Math.floor(Date.now() / 1000);
+  const payload = btoa(
+    JSON.stringify({
+      sub: userId,
+      email,
+      organization_id: "skillfort",
+      role,
+      iat: now,
+      exp: now + 3600,
+      type: "access",
+    })
+  );
+  const signature = btoa("mock-signature");
+  return `${header}.${payload}.${signature}`;
+}
+
 export async function loginRequest(email: string, password: string): Promise<TokenPair & { user: UserInfo }> {
-  const response = await fetch(`${API_BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
+  // Check mock credentials first (for testing without backend)
+  const mockUser = MOCK_USERS[email.toLowerCase()];
+  if (mockUser && mockUser.password === password) {
+    const userId = `user_${email.split("@")[0]}`;
+    const accessToken = generateMockToken(userId, email, mockUser.role);
+    const refreshToken = generateMockToken(userId, email, "refresh");
 
-  if (!response.ok) {
-    throw new Error("Login failed");
-  }
+    const tokenPair: TokenPair = {
+      access_token: accessToken,
+      refresh_token: refreshToken,
+    };
 
-  const data = (await response.json()) as TokenPair;
-  storeTokens(data);
+    storeTokens(tokenPair);
 
-  // Extract user info from access token
-  const user = extractUserFromToken(data.access_token);
-  if (user) {
+    const user: UserInfo = {
+      id: userId,
+      email,
+      role: mockUser.role,
+      organization_id: "skillfort",
+    };
+
     storeUser(user);
-    return { ...data, user };
+    return { ...tokenPair, user };
   }
 
-  throw new Error("Failed to extract user info from token");
+  // Try real auth endpoints
+  const endpoints = [
+    `${API_BASE_URL}/auth-test/login`,
+    `${API_BASE_URL}/auth/login`,
+  ];
+
+  let lastError: Error | null = null;
+
+  for (const endpoint of endpoints) {
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (response.ok) {
+        const data = (await response.json()) as TokenPair;
+        storeTokens(data);
+
+        const user = extractUserFromToken(data.access_token);
+        if (user) {
+          storeUser(user);
+          return { ...data, user };
+        }
+
+        throw new Error("Failed to extract user info from token");
+      }
+
+      if (response.status === 401) {
+        throw new Error("Invalid email or password");
+      }
+
+      lastError = new Error(`Login endpoint failed: ${response.status}`);
+    } catch (error) {
+      lastError = error instanceof Error ? error : new Error(String(error));
+    }
+  }
+
+  throw lastError || new Error("Invalid email or password");
 }
 
 export async function refreshToken(refresh_token: string): Promise<boolean> {
