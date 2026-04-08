@@ -5,6 +5,8 @@ import { AnimatedPage } from "../../components/common/AnimatedPage";
 import { PageHero } from "../../components/common/PageHero";
 import { CourseCard } from "../../components/course/CourseCard";
 import { SectionBlock } from "../../components/ui/SectionBlock";
+import { HeroSection } from "../../components/home/HeroSection";
+import { FeaturesSection } from "../../components/home/FeaturesSection";
 import { useLmsStore } from "../../context/LmsStore";
 import { blogPosts, placements, successStories } from "../../data/mockData";
 import { formatInr } from "../../lib/format";
@@ -14,50 +16,9 @@ export function HomePage() {
 
   return (
     <AnimatedPage>
-      <section className="overflow-hidden rounded-3xl border bg-white/75 p-6 shadow-soft md:p-10">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-          <div>
-            <p className="kicker">Skillfort Institute</p>
-            <h1 className="hero-title mt-3">Recorded Career Courses + LMS + Placement Workflow</h1>
-            <p className="mt-4 max-w-2xl text-base text-sf-muted">
-              Multi-page frontend for students, instructors, and Skillfort admin. Browse and purchase recorded courses,
-              learn inside a structured LMS player, and manage operations with role-based panels.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link to="/courses" className="btn-primary">
-                Explore Courses
-              </Link>
-              <Link to="/cart" className="btn-secondary">
-                View Cart Flow
-              </Link>
-              <Link to="/student/dashboard" className="btn-secondary">
-                Open Student Dashboard
-              </Link>
-            </div>
-          </div>
-          <div className="rounded-2xl border bg-sf-cream p-4">
-            <img src="/skillfort-logo-full.jpg" alt="Skillfort" className="h-56 w-full rounded-xl object-cover" />
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <article className="rounded-xl border bg-white p-3">
-                <p className="text-sf-muted">Active Learners</p>
-                <p className="mt-1 text-lg font-semibold">4,200+</p>
-              </article>
-              <article className="rounded-xl border bg-white p-3">
-                <p className="text-sf-muted">Recorded Library</p>
-                <p className="mt-1 text-lg font-semibold">380+ hours</p>
-              </article>
-              <article className="rounded-xl border bg-white p-3">
-                <p className="text-sf-muted">Placement Partners</p>
-                <p className="mt-1 text-lg font-semibold">120+</p>
-              </article>
-              <article className="rounded-xl border bg-white p-3">
-                <p className="text-sf-muted">Avg Rating</p>
-                <p className="mt-1 text-lg font-semibold">4.8/5</p>
-              </article>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection />
+
+      <FeaturesSection />
 
       <SectionBlock
         title="Featured Programs"

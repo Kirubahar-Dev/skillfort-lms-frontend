@@ -32,18 +32,18 @@ export function FormInput({
         {required && <span className="text-red-500">*</span>}
       </label>
       <div className="relative">
-        {icon && <div className="absolute left-3 top-3 text-sf-muted">{icon}</div>}
+        {icon && <div className="absolute left-3 top-3 text-sf-muted dark:text-gray-400">{icon}</div>}
         <input
           type={type}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className={`input-base w-full ${icon ? "pl-10" : ""} ${error ? "border-red-500 focus:ring-red-500" : "focus:ring-sf-gold"}`}
+          className={`input-base w-full ${icon ? "pl-10" : ""} ${error ? "border-red-500 focus:ring-red-500 dark:border-red-600" : "focus:ring-sf-gold dark:focus:ring-yellow-500"}`}
         />
       </div>
-      {error && <div className="text-sm text-red-500 flex items-center gap-1">⚠ {error}</div>}
-      {hint && !error && <div className="text-sm text-sf-muted">{hint}</div>}
+      {error && <div className="flex items-center gap-1 text-sm text-red-500 dark:text-red-400">⚠ {error}</div>}
+      {hint && !error && <div className="text-sm text-sf-muted dark:text-gray-400">{hint}</div>}
     </div>
   );
 }

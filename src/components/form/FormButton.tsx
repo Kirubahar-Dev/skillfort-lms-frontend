@@ -25,7 +25,7 @@ export function FormButton({
   const variantStyles = {
     primary: "btn-primary hover:-translate-y-0.5 active:translate-y-0",
     secondary: "btn-secondary hover:-translate-y-0.5 active:translate-y-0",
-    outline: "border-2 border-sf-gold text-sf-gold hover:bg-sf-cream disabled:opacity-50",
+    outline: "border-2 border-sf-gold text-sf-gold hover:bg-sf-cream disabled:opacity-50 dark:border-yellow-500 dark:text-yellow-400 dark:hover:bg-gray-800",
   };
 
   return (

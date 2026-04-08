@@ -54,12 +54,12 @@ export function PasswordInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           disabled={disabled}
-          className={`input-base w-full pr-12 ${error ? "border-red-500 focus:ring-red-500" : "focus:ring-sf-gold"}`}
+          className={`input-base w-full pr-12 ${error ? "border-red-500 focus:ring-red-500 dark:border-red-600" : "focus:ring-sf-gold dark:focus:ring-yellow-500"}`}
         />
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className="absolute right-3 top-3 text-sf-muted hover:text-sf-ink transition-colors"
+          className="absolute right-3 top-3 text-sf-muted transition-colors hover:text-sf-ink dark:text-gray-400 dark:hover:text-white"
         >
           {showPassword ? "👁 hide" : "👁 show"}
         </button>
@@ -72,17 +72,17 @@ export function PasswordInput({
               <div
                 key={i}
                 className={`flex-1 h-1 rounded-full transition-all ${
-                  strength && i <= strength.score ? strength.color : "bg-gray-200"
+                  strength && i <= strength.score ? strength.color : "bg-gray-200 dark:bg-gray-700"
                 }`}
               />
             ))}
           </div>
-          {strength && <div className="text-xs text-sf-muted">{strength.label}</div>}
+          {strength && <div className="text-xs text-sf-muted dark:text-gray-400">{strength.label}</div>}
         </div>
       )}
 
-      {error && <div className="text-sm text-red-500 flex items-center gap-1">⚠ {error}</div>}
-      {hint && !error && <div className="text-sm text-sf-muted">{hint}</div>}
+      {error && <div className="flex items-center gap-1 text-sm text-red-500 dark:text-red-400">⚠ {error}</div>}
+      {hint && !error && <div className="text-sm text-sf-muted dark:text-gray-400">{hint}</div>}
     </div>
   );
 }

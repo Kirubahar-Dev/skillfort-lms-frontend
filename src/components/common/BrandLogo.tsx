@@ -12,7 +12,6 @@ export function BrandLogo({ compact = false }: BrandLogoProps) {
         alt="Skillfort"
         className={compact ? "h-9 w-9 rounded-md object-cover" : "h-10 w-auto rounded-md object-contain"}
       />
-      <span className="hidden text-xs font-medium text-sf-muted sm:block">LMS + Placement Platform</span>
     </Link>
   );
 }

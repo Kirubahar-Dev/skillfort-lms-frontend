@@ -62,11 +62,11 @@ export function LoginPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3">
-            <span className="text-red-600">⚠</span>
+          <div className="rounded-lg border border-red-200 bg-red-50 p-4 flex gap-3 dark:border-red-900 dark:bg-red-950">
+            <span className="text-red-600 dark:text-red-400">⚠</span>
             <div>
-              <p className="font-medium text-red-900">{error}</p>
-              <p className="text-sm text-red-700 mt-1">Please check your credentials and try again.</p>
+              <p className="font-medium text-red-900 dark:text-red-200">{error}</p>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-300">Please check your credentials and try again.</p>
             </div>
           </div>
         )}

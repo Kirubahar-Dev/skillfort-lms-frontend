@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { AuthLayout } from "../../components/auth/AuthLayout";
 import { FormInput } from "../../components/form/FormInput";
 import { PasswordInput } from "../../components/form/PasswordInput";
@@ -7,7 +7,7 @@ import { Checkbox } from "../../components/form/Checkbox";
 import { FormButton } from "../../components/form/FormButton";
 import { ProgressBar } from "../../components/form/ProgressBar";
 
-type SignupStep = 1 | 2 | 3 | "success";
+type SignupStep = 1 | 2 | "success";
 
 interface SignupFormData {
   fullName: string;
@@ -20,32 +20,19 @@ interface SignupFormData {
   agreePrivacy: boolean;
 }
 
-const ROLES = [
-  {
-    id: "student" as const,
-    icon: "📚",
-    title: "Student",
-    description: "Learn from courses, track progress & earn certificates",
-  },
-  {
-    id: "instructor" as const,
-    icon: "👨‍🏫",
-    title: "Instructor",
-    description: "Create & sell courses, build your teaching portfolio",
-  },
-  {
-    id: "admin" as const,
-    icon: "👨‍💼",
-    title: "Admin",
-    description: "Manage platform & users, access analytics & reports",
-  },
-];
+type Role = "student" | "instructor" | "admin";
+
+const VALID_ROLES: Role[] = ["student", "instructor", "admin"];
+
+type FormErrors = Partial<Record<keyof SignupFormData, string>>;
 
 export function SignupPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [currentStep, setCurrentStep] = useState<SignupStep>(1);
   const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<Partial<SignupFormData>>({});
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [roleFromUrl, setRoleFromUrl] = useState<Role>("student");
 
   const [formData, setFormData] = useState<SignupFormData>({
     fullName: "",
@@ -58,13 +45,25 @@ export function SignupPage() {
     agreePrivacy: false,
   });
 
+  // Detect role from URL parameter
+  useEffect(() => {
+    const urlRole = searchParams.get("role") as Role | null;
+    if (urlRole && VALID_ROLES.includes(urlRole)) {
+      setRoleFromUrl(urlRole);
+      setFormData((prev) => ({ ...prev, role: urlRole }));
+    } else if (!urlRole) {
+      // Redirect to /signup?role=student if no role specified
+      navigate("/signup?role=student", { replace: true });
+    }
+  }, [searchParams, navigate]);
+
   const updateField = <K extends keyof SignupFormData>(field: K, value: SignupFormData[K]) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setErrors((prev) => ({ ...prev, [field]: undefined }));
   };
 
   const validateStep1 = (): boolean => {
-    const newErrors: Partial<SignupFormData> = {};
+    const newErrors: FormErrors = {};
 
     if (!formData.fullName.trim()) {
       newErrors.fullName = "Full name is required";
@@ -85,7 +84,7 @@ export function SignupPage() {
   };
 
   const validateStep2 = (): boolean => {
-    const newErrors: Partial<SignupFormData> = {};
+    const newErrors: FormErrors = {};
 
     if (!formData.password) {
       newErrors.password = "Password is required";
@@ -99,13 +98,6 @@ export function SignupPage() {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const validateStep3 = (): boolean => {
-    const newErrors: Record<string, string> = {};
-
     if (!formData.agreeTerms) {
       newErrors.agreeTerms = "You must agree to the Terms of Service";
     }
@@ -114,7 +106,7 @@ export function SignupPage() {
       newErrors.agreePrivacy = "You must agree to the Privacy Policy";
     }
 
-    setErrors(newErrors as Partial<SignupFormData>);
+    setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -122,9 +114,7 @@ export function SignupPage() {
     if (currentStep === 1) {
       if (validateStep1()) setCurrentStep(2);
     } else if (currentStep === 2) {
-      if (validateStep2()) setCurrentStep(3);
-    } else if (currentStep === 3) {
-      if (validateStep3()) {
+      if (validateStep2()) {
         await handleCreateAccount();
       }
     }
@@ -146,33 +136,38 @@ export function SignupPage() {
   if (currentStep === "success") {
     return (
       <AuthLayout title="Account Created!" subtitle="Welcome to SkillFort Learning">
-        <div className="text-center space-y-6">
+        <div className="space-y-6 text-center">
           <div className="text-6xl">🎉</div>
 
           <div className="space-y-3">
-            <h2 className="text-2xl font-bold text-sf-ink">Success!</h2>
-            <p className="text-sf-muted">
+            <h2 className="text-2xl font-bold text-sf-ink dark:text-white">Success!</h2>
+            <p className="text-sf-muted dark:text-gray-400">
               We've sent a verification email to <br />
-              <span className="font-semibold text-sf-ink">{formData.email}</span>
+              <span className="font-semibold text-sf-ink dark:text-white">{formData.email}</span>
+            </p>
+            <p className="text-sm text-sf-muted dark:text-gray-400">
+              Signed up as: <span className="font-semibold text-sf-ink dark:text-white capitalize">{formData.role === "student" ? "Learner" : formData.role === "instructor" ? "Instructor" : "Administrator"}</span>
             </p>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-            <p className="text-sm font-semibold text-blue-900 mb-3">Next Steps:</p>
-            <ol className="text-sm text-blue-900 space-y-2">
+          <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-left dark:border-blue-900 dark:bg-blue-950">
+            <p className="mb-3 text-sm font-semibold text-blue-900 dark:text-blue-200">Next Steps:</p>
+            <ol className="space-y-2 text-sm text-blue-900 dark:text-blue-200">
               <li>✓ Check your inbox for verification email</li>
               <li>✓ Click the verification link to activate your account</li>
               <li>✓ Complete your profile information</li>
-              <li>✓ Start exploring courses and learning!</li>
+              <li>✓ Start exploring and learning!</li>
             </ol>
           </div>
 
-          <div className="pt-4 space-y-3">
-            <p className="text-sm text-sf-muted">Didn't receive an email?</p>
-            <button className="text-blue-600 font-semibold hover:underline">Resend verification email</button>
+          <div className="space-y-3 pt-4">
+            <p className="text-sm text-sf-muted dark:text-gray-400">Didn't receive an email?</p>
+            <button className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
+              Resend verification email
+            </button>
           </div>
 
-          <div className="pt-4 border-t border-sf-line">
+          <div className="border-t border-gray-200 pt-4 dark:border-gray-700">
             <FormButton onClick={() => navigate("/login")}>Go to Login</FormButton>
           </div>
         </div>
@@ -184,7 +179,7 @@ export function SignupPage() {
     <AuthLayout title="Create Your Account" subtitle="Join thousands of learners today">
       <div className="space-y-8">
         {/* Progress Bar */}
-        <ProgressBar current={currentStep} total={3} />
+        <ProgressBar current={currentStep} total={2} />
 
         {/* Step 1: Account Details */}
         {currentStep === 1 && (
@@ -239,12 +234,12 @@ export function SignupPage() {
           </div>
         )}
 
-        {/* Step 2: Password & Security */}
+        {/* Step 2: Password & Terms */}
         {currentStep === 2 && (
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-semibold text-sf-ink mb-1">Step 2 of 3: Secure Your Account</h3>
-              <p className="text-sm text-sf-muted">Create a strong password to protect your account</p>
+              <h3 className="text-lg font-semibold text-sf-ink mb-1 dark:text-white">Step 2 of 2: Secure Your Account</h3>
+              <p className="text-sm text-sf-muted dark:text-gray-400">Create a strong password and agree to terms</p>
             </div>
 
             <PasswordInput
@@ -266,9 +261,9 @@ export function SignupPage() {
               required
             />
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
-              <p className="font-semibold text-blue-900 mb-2">Password Requirements:</p>
-              <ul className="space-y-1 text-blue-900">
+            <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm dark:border-blue-900 dark:bg-blue-950">
+              <p className="mb-2 font-semibold text-blue-900 dark:text-blue-200">Password Requirements:</p>
+              <ul className="space-y-1 text-blue-900 dark:text-blue-200">
                 <li>
                   {formData.password.length >= 8 ? "✓" : "○"} At least 8 characters
                 </li>
@@ -284,50 +279,8 @@ export function SignupPage() {
                 </li>
               </ul>
             </div>
-          </div>
-        )}
 
-        {/* Step 3: Role Selection */}
-        {currentStep === 3 && (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-lg font-semibold text-sf-ink mb-1">Step 3 of 3: Choose Your Role</h3>
-              <p className="text-sm text-sf-muted">Select how you'll use SkillFort</p>
-            </div>
-
-            <div className="space-y-3">
-              {ROLES.map((role) => (
-                <button
-                  key={role.id}
-                  type="button"
-                  onClick={() => updateField("role", role.id)}
-                  className={`w-full text-left p-4 border-2 rounded-lg transition-all ${
-                    formData.role === role.id
-                      ? "border-sf-gold bg-sf-cream"
-                      : "border-sf-line hover:border-sf-gold/50 bg-white"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    <input
-                      type="radio"
-                      name="role"
-                      checked={formData.role === role.id}
-                      onChange={() => {}}
-                      className="mt-1 w-5 h-5 accent-sf-gold"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-2xl">{role.icon}</span>
-                        <span className="font-semibold text-sf-ink">{role.title}</span>
-                      </div>
-                      <p className="text-sm text-sf-muted">{role.description}</p>
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <div className="space-y-3 border-t border-sf-line pt-6">
+            <div className="space-y-3 border-t border-gray-200 pt-6 dark:border-gray-700">
               <Checkbox
                 label="I agree to the Terms of Service"
                 checked={formData.agreeTerms}
@@ -349,6 +302,7 @@ export function SignupPage() {
           </div>
         )}
 
+
         {/* Buttons */}
         <div className="flex gap-4 pt-4">
           {currentStep !== 1 && (
@@ -366,7 +320,7 @@ export function SignupPage() {
             disabled={loading}
             fullWidth={currentStep === 1}
           >
-            {currentStep === 3 ? "Create Account" : "Next Step"} →
+            {currentStep === 2 ? "Create Account" : "Next Step"} →
           </FormButton>
         </div>
 
