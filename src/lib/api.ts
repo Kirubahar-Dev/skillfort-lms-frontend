@@ -126,6 +126,7 @@ const MOCK_USERS: Record<string, { password: string; role: string; name: string 
   "mentor@skillfort.com": { password: "Mentor@123", role: "manager", name: "Arjun Prakash" },
   "student@skillfort.com": { password: "Student@123", role: "viewer", name: "Student User" },
   "superadmin@example.com": { password: "Password@123", role: "super_admin", name: "Super Admin" },
+  "kirubahar01@gmail.com": { password: "Ki.01012002", role: "viewer", name: "Kirubahar" },
 };
 
 function generateMockToken(userId: string, email: string, role: string): string {
@@ -148,11 +149,14 @@ function generateMockToken(userId: string, email: string, role: string): string 
 
 export async function loginRequest(email: string, password: string): Promise<TokenPair & { user: UserInfo }> {
   // Check mock credentials first (for testing without backend)
-  const mockUser = MOCK_USERS[email.toLowerCase()];
+  const normalizedEmail = email.toLowerCase().trim();
+  const mockUser = MOCK_USERS[normalizedEmail];
+
   if (mockUser && mockUser.password === password) {
-    const userId = `user_${email.split("@")[0]}`;
-    const accessToken = generateMockToken(userId, email, mockUser.role);
-    const refreshToken = generateMockToken(userId, email, "refresh");
+    console.log("✓ Mock login successful for:", normalizedEmail, "with role:", mockUser.role);
+    const userId = `user_${normalizedEmail.split("@")[0]}`;
+    const accessToken = generateMockToken(userId, normalizedEmail, mockUser.role);
+    const refreshToken = generateMockToken(userId, normalizedEmail, "refresh");
 
     const tokenPair: TokenPair = {
       access_token: accessToken,
@@ -163,7 +167,7 @@ export async function loginRequest(email: string, password: string): Promise<Tok
 
     const user: UserInfo = {
       id: userId,
-      email,
+      email: normalizedEmail,
       role: mockUser.role,
       organization_id: "skillfort",
     };
