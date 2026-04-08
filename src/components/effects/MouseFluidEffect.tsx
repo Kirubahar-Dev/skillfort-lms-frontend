@@ -7,8 +7,8 @@ export function MouseFluidEffect() {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     // WebGL Context initialization
     const params = {
@@ -29,6 +29,8 @@ export function MouseFluidEffect() {
       console.warn('WebGL not supported');
       return;
     }
+
+    console.log('✅ WebGL Context created', { isWebGL2, canvasSize: { width: canvas.width, height: canvas.height } });
 
     // Get extensions
     const halfFloat = gl.getExtension('OES_texture_half_float');
@@ -231,20 +233,16 @@ export function MouseFluidEffect() {
       type: number,
       param: number
     ) {
-      const fbo1 = createFBO(texId, w, h, internalFormat, format, type, param);
-      const fbo2 = createFBO(texId + 1, w, h, internalFormat, format, type, param);
+      let fbo1 = createFBO(texId, w, h, internalFormat, format, type, param);
+      let fbo2 = createFBO(texId + 1, w, h, internalFormat, format, type, param);
 
       return {
-        get first() {
-          return fbo1;
-        },
-        get second() {
-          return fbo2;
-        },
-        swap: function () {
-          const temp = fbo1;
-          fbo1.splice(0, fbo1.length, ...fbo2);
-          fbo2.splice(0, fbo2.length, ...temp);
+        first: fbo1,
+        second: fbo2,
+        swap: function (this: any) {
+          const temp = this.first;
+          this.first = this.second;
+          this.second = temp;
         }
       };
     }
@@ -339,19 +337,32 @@ export function MouseFluidEffect() {
       pointers[0].y = (e as any).offsetY;
     };
 
-    const handleResize = () => {
-      canvas.width = canvas.clientWidth;
-      canvas.height = canvas.clientHeight;
+    const handleWindowResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
       initFramebuffers();
     };
 
+    const resizeCanvas = () => {
+      if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initFramebuffers();
+      }
+    };
+
     canvas.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleWindowResize);
 
     // Animation loop
     let lastTime = Date.now();
+    let frameCount = 0;
     const update = () => {
-      handleResize();
+      frameCount++;
+      if (frameCount === 1) {
+        console.log('✅ Animation loop started', { textureWidth, textureHeight });
+      }
+      resizeCanvas();
 
       const dt = Math.min((Date.now() - lastTime) / 1000, 0.016);
       lastTime = Date.now();
@@ -452,13 +463,15 @@ export function MouseFluidEffect() {
 
     return () => {
       canvas.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', handleWindowResize);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
+      width={typeof window !== 'undefined' ? window.innerWidth : 1024}
+      height={typeof window !== 'undefined' ? window.innerHeight : 768}
       style={{
         position: 'fixed',
         top: 0,
