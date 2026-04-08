@@ -1,85 +1,80 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 export function MouseFluidEffect() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const gl = canvas.getContext('webgl2') as any || canvas.getContext('webgl') as any;
-    if (!gl) return;
-
-    gl.clearColor(0.0, 0.0, 0.0, 1.0);
-
-    // Simple animated background effect
-    let animationId: number;
-    let time = 0;
-
-    const render = () => {
-      time += 0.01;
-
-      gl.clearColor(
-        Math.sin(time) * 0.1,
-        Math.sin(time + 2) * 0.1,
-        Math.sin(time + 4) * 0.1,
-        1.0
-      );
-      gl.clear(gl.COLOR_BUFFER_BIT);
-
-      animationId = requestAnimationFrame(render);
-    };
-
-    // Mouse event for interactive effect
-    let mouseX = 0;
-    let mouseY = 0;
-
     const handleMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX / window.innerWidth;
-      mouseY = e.clientY / window.innerHeight;
-
-      gl.clearColor(
-        Math.sin(time + mouseX) * 0.1 + 0.05,
-        Math.sin(time + mouseY) * 0.1 + 0.05,
-        Math.sin(time) * 0.1 + 0.05,
-        1.0
-      );
-    };
-
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      gl.viewport(0, 0, canvas.width, canvas.height);
+      if (containerRef.current) {
+        const x = e.clientX;
+        const y = e.clientY;
+        setMousePos({ x, y });
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('resize', handleResize);
-
-    render();
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationId);
-    };
+    return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
   return (
-    <canvas
-      ref={canvasRef}
+    <div
+      ref={containerRef}
       style={{
         position: 'fixed',
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
-        display: 'block',
         zIndex: -1,
-        pointerEvents: 'none'
+        pointerEvents: 'none',
+        overflow: 'hidden',
+        background: `
+          radial-gradient(
+            1500px at ${mousePos.x}px ${mousePos.y}px,
+            rgba(147, 112, 219, 0.1) 0%,
+            rgba(75, 0, 130, 0.05) 20%,
+            transparent 100%
+          ),
+          linear-gradient(
+            135deg,
+            rgba(99, 102, 241, 0.05) 0%,
+            rgba(168, 85, 247, 0.03) 50%,
+            rgba(236, 72, 153, 0.05) 100%
+          )
+        `,
+        transition: 'background 0.05s ease-out'
       }}
-    />
+    >
+      {/* Animated gradient orbs */}
+      <div
+        style={{
+          position: 'absolute',
+          width: '400px',
+          height: '400px',
+          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(80px)',
+          top: `${mousePos.y - 200}px`,
+          left: `${mousePos.x - 200}px`,
+          transition: 'all 0.1s ease-out',
+          pointerEvents: 'none'
+        }}
+      />
+      <div
+        style={{
+          position: 'absolute',
+          width: '300px',
+          height: '300px',
+          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          top: `${mousePos.y - 150}px`,
+          left: `${mousePos.x - 150}px`,
+          transition: 'all 0.15s ease-out',
+          pointerEvents: 'none'
+        }}
+      />
+    </div>
   );
 }

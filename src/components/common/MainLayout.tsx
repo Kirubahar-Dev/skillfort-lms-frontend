@@ -7,6 +7,7 @@ import { useLmsStore } from "../../context/LmsStore";
 import { useAuth } from "../../lib/auth";
 import { BrandLogo } from "./BrandLogo";
 import { ThemeToggle } from "./ThemeToggle";
+import { MouseFluidEffect } from "../effects/MouseFluidEffect";
 
 export function MainLayout({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -17,7 +18,8 @@ export function MainLayout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative">
+      <MouseFluidEffect />
       <header className="sticky top-0 z-40 border-b bg-white/80 backdrop-blur dark:border-gray-700 dark:bg-gray-900/80">
         <div className="page-wrap flex items-center justify-between gap-3 py-3">
           <BrandLogo />
