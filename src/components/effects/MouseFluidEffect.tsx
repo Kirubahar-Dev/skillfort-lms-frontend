@@ -5,8 +5,18 @@ export function MouseFluidEffect() {
     // This is the exact working script from the reference
     let canvas = document.getElementsByTagName("canvas")[0];
 
-    canvas.width = canvas.clientWidth;
-    canvas.height = canvas.clientHeight;
+    if (!canvas) {
+      console.error('❌ Canvas not found');
+      return;
+    }
+
+    // Set canvas dimensions
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    console.log('✅ Canvas initialized:', { width, height });
 
     let config = {
       TEXTURE_DOWNSAMPLE: 1,
@@ -67,8 +77,16 @@ export function MouseFluidEffect() {
 
     let _getWebGLContext = getWebGLContext(canvas);
     let gl = _getWebGLContext.gl;
+
+    if (!gl) {
+      console.error('❌ WebGL context not available');
+      return;
+    }
+
     let ext = _getWebGLContext.ext;
     let support_linear_float = _getWebGLContext.support_linear_float;
+
+    console.log('✅ WebGL context created successfully');
 
     function pointerPrototype(this: any) {
       this.id = -1;
