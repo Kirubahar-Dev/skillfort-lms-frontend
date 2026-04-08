@@ -1,0 +1,13 @@
+<svg width="560" height="130" viewBox="0 0 560 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="560" height="130" fill="transparent"/>
+  <path d="M30 65L56 39L66 49L50 65L66 81L56 91L30 65Z" fill="#F7B500"/>
+  <path d="M88 39L114 65L88 91L78 81L94 65L78 49L88 39Z" fill="#F7B500"/>
+
+  <text x="135" y="83" font-family="Montserrat, Arial, sans-serif" font-size="66" font-weight="800" fill="#0A0A0D">SKILL</text>
+  <text x="356" y="83" font-family="Montserrat, Arial, sans-serif" font-size="66" font-weight="500" fill="#0A0A0D">FORT</text>
+
+  <path d="M138 34L164 25L190 34L164 44L138 34Z" fill="#0A0A0D"/>
+  <rect x="156" y="34" width="16" height="13" rx="2" fill="#0A0A0D"/>
+  <path d="M190 34V45" stroke="#0A0A0D" stroke-width="2"/>
+  <circle cx="190" cy="47" r="2.5" fill="#0A0A0D"/>
+</svg>

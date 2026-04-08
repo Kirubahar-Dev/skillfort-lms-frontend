@@ -1,0 +1,91 @@
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-sf-line;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    @apply bg-hero-radial text-sf-ink font-body antialiased;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+}
+
+@layer components {
+  .page-wrap {
+    @apply mx-auto w-full max-w-[1240px] px-4 md:px-6;
+  }
+
+  .panel {
+    @apply rounded-2xl border bg-white/90 p-4 shadow-soft backdrop-blur md:p-6;
+  }
+
+  .panel-soft {
+    @apply rounded-2xl border bg-white/75 p-4 backdrop-blur md:p-6;
+  }
+
+  .hero-title {
+    @apply font-display text-3xl font-semibold leading-tight text-sf-ink md:text-5xl;
+  }
+
+  .section-title {
+    @apply font-display text-2xl font-semibold text-sf-ink md:text-3xl;
+  }
+
+  .kicker {
+    @apply text-xs font-semibold uppercase tracking-[0.16em] text-sf-goldStrong;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-full border border-sf-goldStrong/30 bg-gradient-to-r from-sf-gold to-[#ffd85d] px-5 py-2.5 text-sm font-semibold text-black transition hover:-translate-y-0.5 hover:shadow-glow;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center rounded-full border border-sf-line bg-white px-5 py-2.5 text-sm font-semibold text-sf-ink transition hover:border-sf-goldStrong/50 hover:bg-sf-cream;
+  }
+
+  .input-base {
+    @apply w-full rounded-xl border border-sf-line bg-white px-3 py-2.5 text-sm outline-none transition placeholder:text-sf-muted/70 focus:border-sf-goldStrong focus:ring-2 focus:ring-sf-gold/20;
+  }
+
+  .label-base {
+    @apply block text-sm font-medium text-sf-muted;
+  }
+
+  .nav-link {
+    @apply rounded-full px-3 py-2 text-sm font-medium text-sf-muted transition hover:bg-sf-cream hover:text-sf-ink;
+  }
+
+  .nav-link-active {
+    @apply bg-sf-cream text-sf-ink;
+  }
+}
+
+.fade-in-up {
+  animation: fade-in-up 0.45s ease both;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
