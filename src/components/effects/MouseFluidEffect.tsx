@@ -3,13 +3,14 @@ import React, { useEffect } from 'react';
 export function MouseFluidEffect() {
   useEffect(() => {
     // Wait for canvas to be in the DOM
-    const canvas = document.querySelector('canvas');
+    const canvasElement = document.querySelector('canvas') as HTMLCanvasElement | null;
 
-    if (!canvas) {
+    if (!canvasElement) {
       console.error('❌ Canvas element not found in DOM');
       return;
     }
 
+    const canvas = canvasElement;
     console.log('✅ Canvas element found:', canvas);
 
     // Set canvas dimensions to full window size
