@@ -37,6 +37,7 @@ import MyCertificatesPage from "./pages/student/MyCertificatesPage";
 import MyReviewsPage from "./pages/student/MyReviewsPage";
 import EditProfilePage from "./pages/student/EditProfilePage";
 import MyInterviewPrepPage from "./pages/student/MyInterviewPrepPage";
+import CertificatePage from "./pages/student/CertificatePage";
 import AdminDashboardPage from "./pages/admin/AdminDashboardPage";
 import AdminInterviewPrepPage from "./pages/admin/AdminInterviewPrepPage";
 import AdminCoursesPage from "./pages/admin/AdminCoursesPage";
@@ -103,6 +104,7 @@ export default function App() {
         <Route path="/my-reviews" element={<MyReviewsPage />} />
         <Route path="/edit-profile" element={<EditProfilePage />} />
         <Route path="/my-interview-prep" element={<MyInterviewPrepPage />} />
+        <Route path="/certificate/:courseId" element={<CertificatePage />} />
         {/* Instructor-specific routes (instructor role only) */}
         <Route path="/instructor/dashboard" element={<InstructorDashboardPage />} />
         <Route path="/instructor/courses/:courseId/students" element={<InstructorCourseStudentsPage />} />
