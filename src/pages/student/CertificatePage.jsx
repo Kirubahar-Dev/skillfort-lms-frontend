@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getCertificateInfo } from "../../services/learnService";
-import api from "../../services/api";
+import { getCertificateInfo, downloadCertificatePdf } from "../../services/learnService";
 import { useAuth } from "../../context/AuthContext";
 
 export default function CertificatePage() {
@@ -17,10 +16,13 @@ export default function CertificatePage() {
       .finally(() => setLoading(false));
   }, [courseId]);
 
-  const handleDownload = () => {
-    const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
-    const token = localStorage.getItem("skillfort-access-token");
-    window.open(`${baseURL}/api/learn/certificate/${courseId}?token=${token}`, "_blank");
+  const handleDownload = async () => {
+    try {
+      const filename = `skillfort-certificate-${info?.course_title?.replace(/\s+/g, "-") || courseId}.pdf`;
+      await downloadCertificatePdf(courseId, filename);
+    } catch {
+      alert("Failed to download certificate. Please try again.");
+    }
   };
 
   if (loading) return <div className="flex h-96 items-center justify-center"><div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-primary border-t-transparent" /></div>;
