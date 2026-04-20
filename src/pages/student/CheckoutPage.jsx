@@ -46,9 +46,10 @@ export default function CheckoutPage() {
       const created = await createOrder({ course_id: course.id, amount });
 
       const keyId = created.key_id || import.meta.env.VITE_RAZORPAY_KEY_ID;
+      const isDemo = !created.razorpay_order_id || created.razorpay_order_id.startsWith("demo_");
 
-      // Test mode: if no real Razorpay key, simulate payment
-      if (!keyId || keyId.startsWith("demo_") || !window.Razorpay) {
+      // Test mode: backend has no Razorpay keys configured — auto-enroll
+      if (isDemo || !keyId || !window.Razorpay) {
         const confirmed = await confirmOrder({
           order_id: created.order_id,
           razorpay_payment_id: `pay_test_${Date.now()}`,
