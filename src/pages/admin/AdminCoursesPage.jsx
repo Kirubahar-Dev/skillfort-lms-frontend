@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { createCourse, createCourseLesson, deleteCourse, deleteCourseLesson, fetchCourseLessons, updateCourse, updateCourseLesson } from "../../services/courseService";
 import { fetchAdminCourseInsights } from "../../services/adminService";
-import { getAdminCourseProgress, updateLessonVideo } from "../../services/learnService";
+import { getAdminCourseProgress, updateLessonVideo, uploadLessonVideoFile } from "../../services/learnService";
 
 function Modal({ title, onClose, children, wide }) {
   return (
@@ -36,6 +36,8 @@ export default function AdminCoursesPage() {
   const [editingVideoId, setEditingVideoId] = useState(null);
   const [videoUrl, setVideoUrl] = useState("");
   const [progressData, setProgressData] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const reloadCourses = async () => {
     setLoading(true);
@@ -90,6 +92,23 @@ export default function AdminCoursesPage() {
       const data = await fetchCourseLessons(syllabusModal.id);
       setLessons(data || []); setEditingVideoId(null); setVideoUrl("");
     } catch { toast.error("Unable to save video"); }
+  };
+  const onUploadVideoFile = async (lessonId, file) => {
+    if (!file) return;
+    setUploading(true); setUploadProgress(0);
+    const interval = setInterval(() => setUploadProgress(p => Math.min(p + 8, 90)), 300);
+    try {
+      const res = await uploadLessonVideoFile(lessonId, file);
+      clearInterval(interval); setUploadProgress(100);
+      toast.success("Video uploaded successfully!");
+      const data = await fetchCourseLessons(syllabusModal.id);
+      setLessons(data || []);
+      setTimeout(() => { setUploadProgress(0); setUploading(false); }, 800);
+    } catch {
+      clearInterval(interval);
+      toast.error("Upload failed. Check file size (max 500MB) and format.");
+      setUploading(false); setUploadProgress(0);
+    }
   };
   const openProgress = async (course) => {
     setProgressModal(course); setProgressData(null);
@@ -189,17 +208,56 @@ export default function AdminCoursesPage() {
                           </div>
                         </div>
                         <div className="mt-2">
-                          {editingVideoId === l.id
-                            ? <div className="flex gap-2">
-                                <input className="flex-1 rounded-lg border p-1.5 text-xs bg-transparent" placeholder="YouTube or video URL" value={videoUrl} onChange={e => setVideoUrl(e.target.value)} />
-                                <button onClick={() => onSaveVideoUrl(l.id)} className="rounded-lg bg-brand-primary px-2 py-1 text-xs text-white">Save</button>
-                                <button onClick={() => setEditingVideoId(null)} className="rounded-lg border px-2 py-1 text-xs">X</button>
+                          {editingVideoId === l.id ? (
+                            <div className="space-y-2">
+                              <div className="flex gap-2">
+                                <input
+                                  className="flex-1 rounded-lg border p-1.5 text-xs bg-transparent"
+                                  placeholder="YouTube or direct video URL"
+                                  value={videoUrl}
+                                  onChange={e => setVideoUrl(e.target.value)}
+                                />
+                                <button onClick={() => onSaveVideoUrl(l.id)} className="rounded-lg bg-brand-primary px-2 py-1 text-xs text-white">Save URL</button>
+                                <button onClick={() => setEditingVideoId(null)} className="rounded-lg border px-2 py-1 text-xs">✕</button>
                               </div>
-                            : <div className="flex items-center gap-2">
-                                <span className="text-xs text-slate-400 truncate flex-1">{l.video_url ? l.video_url.slice(0, 45) + "..." : "No video"}</span>
-                                <button onClick={() => { setEditingVideoId(l.id); setVideoUrl(l.video_url || ""); }} className="rounded border px-2 py-0.5 text-xs hover:bg-slate-100 dark:border-white/20 dark:hover:bg-white/10">{l.video_url ? "Change" : "+ Video"}</button>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs text-slate-400">or</span>
+                                <label className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2 py-1 text-xs transition hover:bg-slate-100 dark:border-white/20 dark:hover:bg-white/10 ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}>
+                                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                  {uploading ? "Uploading..." : "Upload File"}
+                                  <input
+                                    type="file"
+                                    accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo"
+                                    className="hidden"
+                                    disabled={uploading}
+                                    onChange={e => { if (e.target.files[0]) onUploadVideoFile(l.id, e.target.files[0]); }}
+                                  />
+                                </label>
                               </div>
-                          }
+                              {uploading && uploadProgress > 0 && (
+                                <div className="h-1.5 w-full rounded-full bg-slate-200 dark:bg-white/10">
+                                  <div className="h-1.5 rounded-full bg-brand-primary transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              {l.video_url ? (
+                                <span className="flex items-center gap-1 text-xs text-emerald-600">
+                                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                  Video set
+                                </span>
+                              ) : (
+                                <span className="text-xs text-slate-400">No video</span>
+                              )}
+                              <button
+                                onClick={() => { setEditingVideoId(l.id); setVideoUrl(l.video_url || ""); }}
+                                className="ml-auto rounded border px-2 py-0.5 text-xs hover:bg-slate-100 dark:border-white/20 dark:hover:bg-white/10"
+                              >
+                                {l.video_url ? "Change" : "+ Video"}
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </div>
                     ))}

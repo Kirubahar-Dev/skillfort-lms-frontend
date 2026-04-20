@@ -27,6 +27,16 @@ export async function getAdminCourseProgress(courseId) {
   return data;
 }
 
+export async function uploadLessonVideoFile(lessonId, file) {
+  const formData = new FormData();
+  formData.append("file", file);
+  const { data } = await api.post(`/api/learn/admin/lessons/${lessonId}/upload-video`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+    timeout: 600000, // 10 min for large video files
+  });
+  return data;
+}
+
 export async function downloadCertificatePdf(courseId, filename) {
   const response = await api.get(`/api/learn/certificate/${courseId}`, { responseType: "blob" });
   const url = window.URL.createObjectURL(new Blob([response.data], { type: "application/pdf" }));
