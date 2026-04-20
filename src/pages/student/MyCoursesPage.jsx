@@ -21,7 +21,16 @@ export default function MyCoursesPage() {
             <div className="mt-2 h-2 rounded-full bg-slate-200 dark:bg-white/10">
               <div className="h-2 rounded-full bg-brand-primary" style={{ width: `${c.progress_percent}%` }} />
             </div>
-            <Link to={`/learn/${c.slug}`} className="mt-3 inline-block rounded-lg bg-brand-primary px-3 py-2 text-sm text-white">Continue</Link>
+            <div className="mt-3 flex gap-2 flex-wrap">
+              <Link to={`/learn/${c.slug}`} className="rounded-lg bg-brand-primary px-3 py-2 text-sm text-white">
+                {c.progress_percent === 100 ? "Review" : "Continue"}
+              </Link>
+              {c.progress_percent === 100 && (
+                <Link to={`/certificate/${c.course_id}`} className="rounded-lg bg-yellow-400 px-3 py-2 text-sm font-semibold text-slate-900 hover:bg-yellow-300">
+                  Certificate
+                </Link>
+              )}
+            </div>
           </article>
         ))}
       </div>
