@@ -30,7 +30,7 @@ export default function AdminSettingsPage() {
               value={x.value}
               onChange={(e) => setItems((prev) => prev.map((p) => (p.key === x.key ? { ...p, value: e.target.value } : p)))}
             />
-            <button className="rounded bg-brand-primary px-3 py-2 text-white" onClick={() => save(x.key, x.value)}>Save</button>
+            <button className="rounded bg-brand-primary px-3 py-2 text-slate-900" onClick={() => save(x.key, x.value)}>Save</button>
           </div>
         ))}
       </div>

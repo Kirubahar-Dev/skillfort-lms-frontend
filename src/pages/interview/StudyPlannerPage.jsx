@@ -11,7 +11,7 @@ export default function StudyPlannerPage() {
     <div className="container-wide py-12">
       <h1 className="font-heading text-4xl font-bold">Study Planner</h1>
       <div className="mt-4 flex gap-2">
-        {[30, 60, 90].map((d) => <button key={d} onClick={() => { setDays(d); setDone({}); }} className={`rounded-lg border px-4 py-2 ${days === d ? "bg-brand-primary text-white" : ""}`}>{d} Days</button>)}
+        {[30, 60, 90].map((d) => <button key={d} onClick={() => { setDays(d); setDone({}); }} className={`rounded-lg border px-4 py-2 ${days === d ? "bg-brand-primary text-slate-900" : ""}`}>{d} Days</button>)}
       </div>
       <p className="mt-4 text-sm">Completion: {percent}%</p>
       <div className="mt-6 grid gap-3 md:grid-cols-2 lg:grid-cols-3">

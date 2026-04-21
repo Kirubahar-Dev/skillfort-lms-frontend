@@ -174,7 +174,7 @@ export default function CheckoutPage() {
             <button
               onClick={handlePay}
               disabled={loading}
-              className="w-full rounded-xl bg-brand-primary py-3.5 font-bold text-white shadow-lg transition hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
+              className="w-full rounded-xl bg-brand-primary py-3.5 font-bold text-slate-900 shadow-lg transition hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>

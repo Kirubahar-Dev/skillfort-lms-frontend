@@ -27,7 +27,7 @@ export default function AdminCategoriesPage() {
       <h1 className="font-heading text-4xl font-bold">Categories</h1>
       <form onSubmit={add} className="mt-4 flex gap-2 rounded-xl border p-3 dark:border-white/10">
         <input className="flex-1 rounded border p-2 bg-transparent" placeholder="New category name" value={name} onChange={(e) => setName(e.target.value)} />
-        <button className="rounded bg-brand-primary px-4 py-2 text-white">Add</button>
+        <button className="rounded bg-brand-primary px-4 py-2 text-slate-900">Add</button>
       </form>
 
       <div className="mt-6 overflow-auto rounded-2xl border dark:border-white/10">

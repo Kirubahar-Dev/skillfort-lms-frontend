@@ -126,7 +126,7 @@ export default function AdminCoursesPage() {
           <h1 className="font-heading text-4xl font-bold">Courses</h1>
           <p className="mt-1 text-sm text-slate-500">{items.length} total courses</p>
         </div>
-        <button onClick={openCreate} className="rounded-xl bg-brand-primary px-4 py-2 font-semibold text-white hover:opacity-90">+ New Course</button>
+        <button onClick={openCreate} className="rounded-xl bg-brand-primary px-4 py-2 font-semibold text-slate-900 hover:opacity-90">+ New Course</button>
       </div>
 
       <div className="mt-5 overflow-auto rounded-2xl border dark:border-white/10">
@@ -179,7 +179,7 @@ export default function AdminCoursesPage() {
               <label className="text-sm md:col-span-2"><span className="mb-1 block font-medium">Status</span><select className="w-full rounded-lg border p-2 bg-transparent" value={courseForm.status} onChange={cf("status")}><option value="published">Published</option><option value="draft">Draft</option></select></label>
             </div>
             <div className="flex gap-3 pt-2 border-t dark:border-white/10">
-              <button disabled={saving} className="rounded-xl bg-brand-primary px-5 py-2 font-semibold text-white disabled:opacity-50">{saving ? "Saving..." : courseModal === "edit" ? "Update Course" : "Create Course"}</button>
+              <button disabled={saving} className="rounded-xl bg-brand-primary px-5 py-2 font-semibold text-slate-900 disabled:opacity-50">{saving ? "Saving..." : courseModal === "edit" ? "Update Course" : "Create Course"}</button>
               <button type="button" onClick={() => setCourseModal(null)} className="rounded-xl border px-5 py-2 font-semibold">Cancel</button>
             </div>
           </form>
@@ -217,7 +217,7 @@ export default function AdminCoursesPage() {
                                   value={videoUrl}
                                   onChange={e => setVideoUrl(e.target.value)}
                                 />
-                                <button onClick={() => onSaveVideoUrl(l.id)} className="rounded-lg bg-brand-primary px-2 py-1 text-xs text-white">Save URL</button>
+                                <button onClick={() => onSaveVideoUrl(l.id)} className="rounded-lg bg-brand-primary px-2 py-1 text-xs text-slate-900">Save URL</button>
                                 <button onClick={() => setEditingVideoId(null)} className="rounded-lg border px-2 py-1 text-xs">✕</button>
                               </div>
                               <div className="flex items-center gap-2">
@@ -276,7 +276,7 @@ export default function AdminCoursesPage() {
                 </div>
                 <label className="flex items-center gap-2 text-sm cursor-pointer"><input type="checkbox" checked={lessonForm.is_preview} onChange={e => setLessonForm(s => ({ ...s, is_preview: e.target.checked }))} /> Free Preview</label>
                 <div className="flex gap-2 pt-1">
-                  <button disabled={lessonSaving} className="flex-1 rounded-xl bg-brand-primary py-2 text-sm font-semibold text-white disabled:opacity-50">{lessonSaving ? "Saving..." : lessonForm.id ? "Update" : "Add Lesson"}</button>
+                  <button disabled={lessonSaving} className="flex-1 rounded-xl bg-brand-primary py-2 text-sm font-semibold text-slate-900 disabled:opacity-50">{lessonSaving ? "Saving..." : lessonForm.id ? "Update" : "Add Lesson"}</button>
                   <button type="button" onClick={() => setLessonForm(EMPTY_LESSON)} className="rounded-xl border px-3 py-2 text-sm">Reset</button>
                 </div>
               </form>

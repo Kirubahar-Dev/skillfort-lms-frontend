@@ -193,7 +193,7 @@ export default function AdminInterviewPrepPage() {
           ["Companies", "companies"],
           ["Analytics", "analytics"],
         ].map(([label, key]) => (
-          <button key={key} className={`rounded-lg border px-3 py-1 ${tab === key ? "bg-brand-primary text-white" : ""}`} onClick={() => setTab(key)}>
+          <button key={key} className={`rounded-lg border px-3 py-1 ${tab === key ? "bg-brand-primary text-slate-900" : ""}`} onClick={() => setTab(key)}>
             {label}
           </button>
         ))}
@@ -282,7 +282,7 @@ export default function AdminInterviewPrepPage() {
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Answer</span>
                 <RichEditor value={questionForm.answer} onChange={(v) => setQuestionForm((s) => ({ ...s, answer: v }))} />
               </div>
-              <button className="rounded-lg bg-brand-primary py-2 text-white" onClick={saveQuestion}>Save Question</button>
+              <button className="rounded-lg bg-brand-primary py-2 text-slate-900" onClick={saveQuestion}>Save Question</button>
             </div>
           </section>
         </div>
@@ -297,7 +297,7 @@ export default function AdminInterviewPrepPage() {
                 <div key={t.id} className="flex items-center justify-between rounded-lg border p-3 dark:border-white/10">
                   <div>
                     <p className="font-semibold">{t.name}</p>
-                    <p className="text-xs text-slate-500">{t.slug} • {t.domain}</p>
+                    <p className="text-xs text-slate-500">{t.slug}  {t.domain}</p>
                   </div>
                   <div className="space-x-2">
                     <button className="rounded border px-2 py-1" onClick={() => setTopicForm({ ...t, domain: t.domain, description: t.description || "", cheat_sheet: t.cheat_sheet || "", status: t.status || "published" })}>Edit</button>
@@ -321,7 +321,7 @@ export default function AdminInterviewPrepPage() {
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Cheat Sheet</span>
                 <RichEditor value={topicForm.cheat_sheet} onChange={(v) => setTopicForm((s) => ({ ...s, cheat_sheet: v }))} />
               </div>
-              <button className="rounded-lg bg-brand-primary py-2 text-white" onClick={saveTopic}>Save Topic</button>
+              <button className="rounded-lg bg-brand-primary py-2 text-slate-900" onClick={saveTopic}>Save Topic</button>
             </div>
           </section>
         </div>
@@ -353,7 +353,7 @@ export default function AdminInterviewPrepPage() {
                 <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">Interview Process</span>
                 <textarea className="min-h-[120px] w-full rounded-lg border border-slate-300 bg-transparent p-2 text-sm dark:border-white/20" value={companyForm.interview_process || ""} onChange={(e) => setCompanyForm((s) => ({ ...s, interview_process: e.target.value }))} />
               </label>
-              <button className="rounded-lg bg-brand-primary py-2 text-white" onClick={saveCompany}>Save Company</button>
+              <button className="rounded-lg bg-brand-primary py-2 text-slate-900" onClick={saveCompany}>Save Company</button>
             </div>
           </section>
         </div>

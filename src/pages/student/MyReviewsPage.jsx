@@ -32,13 +32,13 @@ export default function MyReviewsPage() {
         </select>
         <input type="number" min="1" max="5" className="rounded border p-2 bg-transparent" value={form.rating} onChange={(e) => setForm({ ...form, rating: e.target.value })} />
         <input className="rounded border p-2 bg-transparent" placeholder="Comment" value={form.comment} onChange={(e) => setForm({ ...form, comment: e.target.value })} />
-        <button className="rounded bg-brand-primary px-3 py-2 text-white">Add Review</button>
+        <button className="rounded bg-brand-primary px-3 py-2 text-slate-900">Add Review</button>
       </form>
 
       <div className="mt-4 space-y-2">
         {items.map((r) => (
           <div key={r.id} className="rounded-xl border p-3 dark:border-white/10">
-            <p className="font-semibold">{r.course} • {r.rating}/5 • {r.status}</p>
+            <p className="font-semibold">{r.course}  {r.rating}/5  {r.status}</p>
             <p className="text-sm text-slate-500">{r.comment}</p>
             <div className="mt-2 space-x-2">
               <button className="rounded border px-2 py-1 text-xs" onClick={async () => { await updateStudentReview(r.id, r.rating, r.comment + " (updated)"); load(); }}>Update</button>

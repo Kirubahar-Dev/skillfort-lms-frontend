@@ -172,7 +172,7 @@ export default function LearnPage() {
                       onClick={() => !isLocked && setActiveLesson(l)}
                       className={`mb-1 w-full rounded-lg px-3 py-2 text-left text-sm transition ${
                         isActive
-                          ? "bg-brand-primary text-white"
+                          ? "bg-brand-primary text-slate-900"
                           : isLocked
                           ? "cursor-not-allowed opacity-40"
                           : "hover:bg-slate-200 dark:hover:bg-white/10"
@@ -217,7 +217,7 @@ export default function LearnPage() {
                   className={`rounded-xl px-5 py-2 font-semibold text-sm transition ${
                     activeLesson.completed
                       ? "bg-emerald-100 text-emerald-700 cursor-default"
-                      : "bg-brand-primary text-white hover:opacity-90 disabled:opacity-50"
+                      : "bg-brand-primary text-slate-900 hover:opacity-90 disabled:opacity-50"
                   }`}
                 >
                   {completing ? "Saving..." : activeLesson.completed ? "✅ Completed" : "Mark as Complete"}
@@ -249,7 +249,7 @@ export default function LearnPage() {
                   value={note}
                   onChange={e => setNote(e.target.value)}
                 />
-                <button onClick={saveNote} className="rounded-lg bg-brand-primary px-4 py-2 text-sm text-white">Save Note</button>
+                <button onClick={saveNote} className="rounded-lg bg-brand-primary px-4 py-2 text-sm text-slate-900">Save Note</button>
                 <div className="space-y-2">
                   {(courseData.notes || []).map(n => (
                     <div key={n.id} className="rounded-lg border p-3 text-sm dark:border-white/10">
@@ -279,7 +279,7 @@ export default function LearnPage() {
                   </div>
                 ))}
                 {(courseData.quiz?.questions || []).length > 0 && (
-                  <button onClick={submitQuizAnswers} className="rounded-lg bg-brand-primary px-4 py-2 text-sm text-white">
+                  <button onClick={submitQuizAnswers} className="rounded-lg bg-brand-primary px-4 py-2 text-sm text-slate-900">
                     Submit Quiz
                   </button>
                 )}

@@ -51,7 +51,7 @@ export default function AdminInstructorsPage() {
           <span className="mb-1 block">Temporary Password</span>
           <input className="w-full rounded border p-2 bg-transparent" placeholder="Password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
         </label>
-        <button className="h-fit self-end rounded bg-brand-primary px-3 py-2 text-white">Add Instructor</button>
+        <button className="h-fit self-end rounded bg-brand-primary px-3 py-2 text-slate-900">Add Instructor</button>
       </form>
 
       <div className="mt-6 overflow-auto rounded-2xl border dark:border-white/10">

@@ -37,7 +37,7 @@ export default function EditProfilePage() {
           <input type="file" className="mt-1 block" accept=".jpg,.jpeg,.png,.webp" onChange={onUpload} />
           {form.photo_url ? <p className="mt-1 break-all text-xs text-slate-500">{form.photo_url}</p> : null}
         </div>
-        <button className="md:col-span-2 rounded bg-brand-primary py-2 text-white">Save Profile</button>
+        <button className="md:col-span-2 rounded bg-brand-primary py-2 text-slate-900">Save Profile</button>
       </form>
     </div>
   );

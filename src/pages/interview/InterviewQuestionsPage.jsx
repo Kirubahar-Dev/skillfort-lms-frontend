@@ -65,10 +65,10 @@ export default function InterviewQuestionsPage() {
                   <span className="rounded-full bg-brand-primary/10 px-2 py-1 text-xs text-brand-primary">{q.domain}</span>
                 </div>
                 <h2 className="mt-2 text-lg font-semibold">{q.title}</h2>
-                <p className="mt-1 text-sm text-slate-500">Views: {q.views || 0} • Bookmarks: {q.bookmarks || 0}</p>
+                <p className="mt-1 text-sm text-slate-500">Views: {q.views || 0}  Bookmarks: {q.bookmarks || 0}</p>
                 <div className="mt-3 flex gap-2">
                   <Link to={`/interview-prep/questions/${q.id}/${q.slug}`} className="rounded-lg border px-3 py-1 text-sm">Open</Link>
-                  <Link to="/interview-prep/compiler" className="rounded-lg bg-brand-primary px-3 py-1 text-sm text-white">Try in Compiler</Link>
+                  <Link to="/interview-prep/compiler" className="rounded-lg bg-brand-primary px-3 py-1 text-sm text-slate-900">Try in Compiler</Link>
                 </div>
               </article>
             ))}

@@ -11,7 +11,7 @@ export default function MockInterviewPage() {
           <select className="rounded-lg border p-2 bg-transparent"><option>Easy</option><option>Medium</option><option>Hard</option><option>Mixed</option></select>
           <select className="rounded-lg border p-2 bg-transparent"><option>5 Questions</option><option>10 Questions</option><option>15 Questions</option></select>
           <select className="rounded-lg border p-2 bg-transparent"><option>60 minutes</option><option>45 minutes</option><option>90 minutes</option></select>
-          <button className="md:col-span-2 rounded-lg bg-brand-primary py-3 text-white" onClick={() => setStarted(true)}>Start Mock Interview</button>
+          <button className="md:col-span-2 rounded-lg bg-brand-primary py-3 text-slate-900" onClick={() => setStarted(true)}>Start Mock Interview</button>
         </div>
       ) : (
         <div className="mt-6 rounded-2xl border p-6 dark:border-white/10">Interview screen scaffold with progress/timer/answer workflow.</div>

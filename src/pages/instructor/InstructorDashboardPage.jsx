@@ -22,7 +22,7 @@ export default function InstructorDashboardPage() {
   return (
     <div>
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary text-lg font-bold text-white">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-primary text-lg font-bold text-slate-900">
           {user?.full_name?.charAt(0) || "I"}
         </div>
         <div>
@@ -100,7 +100,7 @@ export default function InstructorDashboardPage() {
                 <div className="mt-3 flex gap-2">
                   <Link
                     to={`/instructor/courses/${c.id}/students`}
-                    className="flex-1 rounded-lg bg-brand-primary py-1.5 text-center text-xs font-semibold text-white"
+                    className="flex-1 rounded-lg bg-brand-primary py-1.5 text-center text-xs font-semibold text-slate-900"
                   >
                     View Students
                   </Link>

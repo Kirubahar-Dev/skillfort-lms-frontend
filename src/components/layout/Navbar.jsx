@@ -33,7 +33,7 @@ export default function Navbar() {
               className={({ isActive }) =>
                 `rounded-lg px-3 py-2 text-sm font-medium transition ${
                   isActive
-                    ? "bg-brand-primary text-white"
+                    ? "bg-brand-primary text-slate-900"
                     : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-white/10"
                 }`
               }
@@ -60,7 +60,7 @@ export default function Navbar() {
               <Link className="hidden text-sm font-medium md:block" to="/login">
                 Login
               </Link>
-              <Link className="rounded-lg bg-brand-primary px-3 py-2 text-sm font-semibold text-white" to="/register">
+              <Link className="rounded-lg bg-brand-primary px-3 py-2 text-sm font-semibold text-slate-900" to="/register">
                 Register
               </Link>
             </>

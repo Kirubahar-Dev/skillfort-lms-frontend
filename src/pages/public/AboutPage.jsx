@@ -136,7 +136,7 @@ export default function AboutPage() {
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
               {team.map(({ name, role, courses }) => (
                 <div key={name} className="rounded-2xl border p-5 dark:border-white/10">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-white">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-primary text-sm font-bold text-slate-900">
                     {name.charAt(0)}
                   </div>
                   <p className="mt-3 font-semibold">{name}</p>
@@ -171,7 +171,7 @@ export default function AboutPage() {
 
       {/* ── Contact CTA ──────────────────────────────────────────────── */}
       <section className="container-wide py-14">
-        <div className="flex flex-col items-center gap-4 rounded-3xl bg-brand-primary p-10 text-center text-white">
+        <div className="flex flex-col items-center gap-4 rounded-3xl bg-brand-primary p-10 text-center text-slate-900">
           <img src="/images/world-map.png" alt="" className="absolute opacity-5 pointer-events-none hidden lg:block w-full max-w-2xl" />
           <h2 className="font-heading text-3xl font-bold">Ready to Join Skillfort?</h2>
           <p className="max-w-xl text-slate-200">

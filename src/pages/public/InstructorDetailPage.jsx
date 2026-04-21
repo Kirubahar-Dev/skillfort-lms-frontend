@@ -25,7 +25,7 @@ export default function InstructorDetailPage() {
             <input className="w-full rounded-lg border p-2 bg-transparent" placeholder="Name" />
             <input className="w-full rounded-lg border p-2 bg-transparent" placeholder="Email" />
             <textarea className="w-full rounded-lg border p-2 bg-transparent" rows="4" placeholder="Message" />
-            <button className="w-full rounded-lg bg-brand-primary py-2 text-white">Send</button>
+            <button className="w-full rounded-lg bg-brand-primary py-2 text-slate-900">Send</button>
           </form>
         </aside>
       </div>

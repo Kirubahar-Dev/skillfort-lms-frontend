@@ -11,7 +11,7 @@ export default function CartPage() {
           <p className="mt-2 text-sm">Subtotal: ?24,999</p>
           <input className="mt-3 w-full rounded-lg border p-2 bg-transparent" placeholder="Coupon code" />
           <button className="mt-3 w-full rounded-lg border py-2">Apply</button>
-          <button className="mt-3 w-full rounded-lg bg-brand-primary py-2 text-white">Proceed to Checkout</button>
+          <button className="mt-3 w-full rounded-lg bg-brand-primary py-2 text-slate-900">Proceed to Checkout</button>
         </aside>
       </div>
     </div>

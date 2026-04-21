@@ -40,7 +40,7 @@ export default function InterviewTopicDetailPage() {
               <p className="text-sm text-slate-500">Difficulty: {q.difficulty}</p>
               <div className="mt-2 flex gap-2">
                 <Link className="rounded-lg border px-3 py-1 text-sm" to={`/interview-prep/questions/${q.id}/${q.slug}`}>Open Question</Link>
-                <Link className="rounded-lg bg-brand-primary px-3 py-1 text-sm text-white" to="/interview-prep/compiler">Try in Compiler</Link>
+                <Link className="rounded-lg bg-brand-primary px-3 py-1 text-sm text-slate-900" to="/interview-prep/compiler">Try in Compiler</Link>
               </div>
             </article>
           ))}

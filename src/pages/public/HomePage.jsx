@@ -122,7 +122,7 @@ export default function HomePage() {
               startups, and MNCs — all within a short span.
             </p>
             <div className="mt-6 flex gap-4">
-              <Link to="/about-us" className="rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white">
+              <Link to="/about-us" className="rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-semibold text-slate-900">
                 Learn More
               </Link>
               <Link to="/contact" className="rounded-xl border px-5 py-2.5 text-sm font-semibold dark:border-white/20">
@@ -136,7 +136,7 @@ export default function HomePage() {
               alt="Student learning at Skillfort"
               className="w-full rounded-3xl object-cover shadow-xl"
             />
-            <div className="absolute -bottom-4 -right-4 hidden rounded-2xl bg-brand-primary px-5 py-3 text-white shadow-lg lg:block">
+            <div className="absolute -bottom-4 -right-4 hidden rounded-2xl bg-brand-primary px-5 py-3 text-slate-900 shadow-lg lg:block">
               <p className="text-sm font-semibold">📍 Chennai, India</p>
               <p className="text-xs opacity-80">+91 93449 93939</p>
             </div>
@@ -231,7 +231,7 @@ export default function HomePage() {
       </section>
 
       {/* ── CTA ─────────────────────────────────────────────────── */}
-      <section className="bg-brand-primary py-16 text-white">
+      <section className="bg-brand-primary py-16 text-slate-900">
         <div className="container-wide grid items-center gap-8 lg:grid-cols-2">
           <div>
             <h2 className="font-heading text-3xl font-bold">Ready to Start Your IT Career?</h2>

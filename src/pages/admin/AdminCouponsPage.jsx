@@ -27,7 +27,7 @@ export default function AdminCouponsPage() {
         <label className="text-sm"><span className="mb-1 block">Coupon Code</span><input className="w-full rounded border p-2 bg-transparent" placeholder="Code" value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} /></label>
         <label className="text-sm"><span className="mb-1 block">Discount %</span><input className="w-full rounded border p-2 bg-transparent" type="number" placeholder="Discount %" value={form.discount_percent} onChange={(e) => setForm({ ...form, discount_percent: e.target.value })} /></label>
         <label className="text-sm"><span className="mb-1 block">Max Uses</span><input className="w-full rounded border p-2 bg-transparent" type="number" placeholder="Max uses" value={form.max_uses} onChange={(e) => setForm({ ...form, max_uses: e.target.value })} /></label>
-        <button className="h-fit self-end rounded bg-brand-primary px-4 py-2 text-white">Add Coupon</button>
+        <button className="h-fit self-end rounded bg-brand-primary px-4 py-2 text-slate-900">Add Coupon</button>
       </form>
 
       <div className="mt-6 overflow-auto rounded-2xl border dark:border-white/10">

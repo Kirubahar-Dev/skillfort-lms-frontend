@@ -135,7 +135,7 @@ export default function CourseDetailPage() {
                 <button
                   key={t}
                   className={`rounded-lg border px-4 py-2 text-sm font-medium capitalize transition ${
-                    tab === t ? "bg-brand-primary text-white border-brand-primary" : "hover:bg-slate-100 dark:hover:bg-white/10"
+                    tab === t ? "bg-brand-primary text-slate-900 border-brand-primary" : "hover:bg-slate-100 dark:hover:bg-white/10"
                   }`}
                   onClick={() => setTab(t)}
                 >
@@ -250,7 +250,7 @@ export default function CourseDetailPage() {
 
             <button
               onClick={handleEnroll}
-              className="mt-5 w-full rounded-xl bg-brand-primary py-3 font-semibold text-white transition hover:opacity-90"
+              className="mt-5 w-full rounded-xl bg-brand-primary py-3 font-semibold text-slate-900 transition hover:opacity-90"
             >
               {isAuthenticated ? "Enroll Now" : "Login to Enroll"}
             </button>

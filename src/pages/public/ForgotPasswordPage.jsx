@@ -33,8 +33,8 @@ export default function ForgotPasswordPage() {
         @keyframes floatUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
         @keyframes shimmer { 0%{background-position:200% center} 100%{background-position:-200% center} }
         .card-float { animation: floatUp 0.5s ease both; }
-        .btn-shimmer { background-size:200% auto; background-image:linear-gradient(90deg,#6366f1 0%,#818cf8 40%,#6366f1 100%); animation:shimmer 2.5s linear infinite; }
-        .btn-shimmer:hover { background-image:linear-gradient(90deg,#4f46e5 0%,#6366f1 100%); animation:none; }
+        .btn-shimmer { background-size:200% auto; background-image:linear-gradient(90deg,#FCB900 0%,#ffd04d 40%,#FCB900 100%); animation:shimmer 2.5s linear infinite; }
+        .btn-shimmer:hover { background-image:linear-gradient(90deg,#e6a800 0%,#FCB900 100%); animation:none; }
       `}</style>
 
       <div className="card-float w-full max-w-md rounded-3xl border bg-white/5 p-8 shadow-2xl backdrop-blur-sm dark:border-white/10">
@@ -80,13 +80,13 @@ export default function ForgotPasswordPage() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-shimmer w-full rounded-xl py-3 font-semibold text-white shadow-lg transition disabled:opacity-60 flex items-center justify-center gap-2"
+              className="btn-shimmer w-full rounded-xl py-3 font-semibold text-slate-900 shadow-lg transition disabled:opacity-60 flex items-center justify-center gap-2"
             >
               {loading ? (
                 <>
                   <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="white" strokeWidth="4"/>
-                    <path className="opacity-75" fill="white" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="#1e293b" strokeWidth="4"/>
+                    <path className="opacity-75" fill="#1e293b" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/>
                   </svg>
                   Sending...
                 </>
