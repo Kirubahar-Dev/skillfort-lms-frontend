@@ -34,7 +34,6 @@ export default function AdminCoursesPage() {
   const [lessonForm, setLessonForm] = useState(EMPTY_LESSON);
   const [lessonSaving, setLessonSaving] = useState(false);
   const [editingVideoId, setEditingVideoId] = useState(null);
-  const [videoUrl, setVideoUrl] = useState("");
   const [progressData, setProgressData] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -86,13 +85,7 @@ export default function AdminCoursesPage() {
       const data = await fetchCourseLessons(syllabusModal.id); setLessons(data || []); await reloadCourses();
     } catch { toast.error("Unable to delete"); }
   };
-  const onSaveVideoUrl = async (lessonId) => {
-    try {
-      await updateLessonVideo(lessonId, videoUrl); toast.success("Video saved");
-      const data = await fetchCourseLessons(syllabusModal.id);
-      setLessons(data || []); setEditingVideoId(null); setVideoUrl("");
-    } catch { toast.error("Unable to save video"); }
-  };
+
   const onUploadVideoFile = async (lessonId, file) => {
     if (!file) return;
     setUploading(true); setUploadProgress(0);
@@ -207,55 +200,68 @@ export default function AdminCoursesPage() {
                             <button onClick={() => onDeleteLesson(l.id)} className="rounded border px-2 py-1 text-xs text-rose-500 hover:bg-rose-50">Del</button>
                           </div>
                         </div>
-                        <div className="mt-2">
-                          {editingVideoId === l.id ? (
-                            <div className="space-y-2">
-                              <div className="flex gap-2">
-                                <input
-                                  className="flex-1 rounded-lg border p-1.5 text-xs bg-transparent"
-                                  placeholder="YouTube or direct video URL"
-                                  value={videoUrl}
-                                  onChange={e => setVideoUrl(e.target.value)}
-                                />
-                                <button onClick={() => onSaveVideoUrl(l.id)} className="rounded-lg bg-brand-primary px-2 py-1 text-xs text-slate-900">Save URL</button>
-                                <button onClick={() => setEditingVideoId(null)} className="rounded-lg border px-2 py-1 text-xs">✕</button>
+                        {/* ── Video section (always visible) ── */}
+                        <div className="mt-3 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-3 dark:border-white/10 dark:bg-white/3">
+                          <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10l4.553-2.069A1 1 0 0121 8.82v6.362a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg>
+                            Video
+                            {l.video_url && <span className="ml-1 rounded-full bg-emerald-100 px-1.5 py-0.5 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">✓ Set</span>}
+                          </p>
+
+                          {/* URL input row */}
+                          <div className="flex gap-2 mb-2">
+                            <input
+                              className="flex-1 rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs outline-none focus:border-brand-primary dark:border-white/10 dark:bg-white/5"
+                              placeholder="Paste YouTube / video URL…"
+                              defaultValue={l.video_url || ""}
+                              id={`video-url-${l.id}`}
+                            />
+                            <button
+                              onClick={() => {
+                                const val = document.getElementById(`video-url-${l.id}`)?.value || "";
+                                updateLessonVideo(l.id, val)
+                                  .then(() => { toast.success("Video URL saved"); fetchCourseLessons(syllabusModal.id).then(d => setLessons(d || [])); })
+                                  .catch(() => toast.error("Unable to save URL"));
+                              }}
+                              className="rounded-lg bg-brand-primary px-2.5 py-1.5 text-xs font-semibold text-slate-900 hover:opacity-90"
+                            >
+                              Save URL
+                            </button>
+                          </div>
+
+                          {/* Upload file row */}
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-slate-400">or upload a file:</span>
+                            <label className={`flex cursor-pointer items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-xs font-medium transition hover:border-brand-primary hover:text-brand-primary dark:border-white/20 dark:bg-white/5 ${uploading && editingVideoId === l.id ? "opacity-50 cursor-not-allowed" : ""}`}>
+                              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                              </svg>
+                              {uploading && editingVideoId === l.id ? "Uploading…" : "Upload Video File"}
+                              <input
+                                type="file"
+                                accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo"
+                                className="hidden"
+                                disabled={uploading}
+                                onChange={e => {
+                                  if (e.target.files[0]) {
+                                    setEditingVideoId(l.id);
+                                    onUploadVideoFile(l.id, e.target.files[0]);
+                                  }
+                                }}
+                              />
+                            </label>
+                            <span className="text-xs text-slate-400">mp4 · webm · mov (max 500MB)</span>
+                          </div>
+
+                          {/* Upload progress bar */}
+                          {uploading && editingVideoId === l.id && uploadProgress > 0 && (
+                            <div className="mt-2">
+                              <div className="flex justify-between text-xs text-slate-500 mb-1">
+                                <span>Uploading…</span><span>{uploadProgress}%</span>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs text-slate-400">or</span>
-                                <label className={`flex cursor-pointer items-center gap-1.5 rounded-lg border px-2 py-1 text-xs transition hover:bg-slate-100 dark:border-white/20 dark:hover:bg-white/10 ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}>
-                                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                  {uploading ? "Uploading..." : "Upload File"}
-                                  <input
-                                    type="file"
-                                    accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo"
-                                    className="hidden"
-                                    disabled={uploading}
-                                    onChange={e => { if (e.target.files[0]) onUploadVideoFile(l.id, e.target.files[0]); }}
-                                  />
-                                </label>
+                              <div className="h-2 w-full rounded-full bg-slate-200 dark:bg-white/10">
+                                <div className="h-2 rounded-full bg-brand-primary transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
                               </div>
-                              {uploading && uploadProgress > 0 && (
-                                <div className="h-1.5 w-full rounded-full bg-slate-200 dark:bg-white/10">
-                                  <div className="h-1.5 rounded-full bg-brand-primary transition-all duration-300" style={{ width: `${uploadProgress}%` }} />
-                                </div>
-                              )}
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              {l.video_url ? (
-                                <span className="flex items-center gap-1 text-xs text-emerald-600">
-                                  <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                                  Video set
-                                </span>
-                              ) : (
-                                <span className="text-xs text-slate-400">No video</span>
-                              )}
-                              <button
-                                onClick={() => { setEditingVideoId(l.id); setVideoUrl(l.video_url || ""); }}
-                                className="ml-auto rounded border px-2 py-0.5 text-xs hover:bg-slate-100 dark:border-white/20 dark:hover:bg-white/10"
-                              >
-                                {l.video_url ? "Change" : "+ Video"}
-                              </button>
                             </div>
                           )}
                         </div>
