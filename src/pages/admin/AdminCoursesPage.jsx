@@ -7,6 +7,7 @@ import {
   adminGetLessonQuestions, adminGenerateQuestions, adminApproveQuestion,
   adminRejectQuestion, adminDeleteQuestion, adminAddQuestion, adminUpdateQuestion,
 } from "../../services/quizService";
+import api from "../../services/api";
 
 function Modal({ title, onClose, children, wide }) {
   return (
@@ -42,6 +43,8 @@ export default function AdminCoursesPage() {
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  const [thumbUploading, setThumbUploading] = useState(false);
+
   // Questions panel
   const [questionPanelId, setQuestionPanelId] = useState(null);   // lesson id whose panel is open
   const [lessonQuestions, setLessonQuestions] = useState({});      // {lessonId: []}
@@ -53,8 +56,12 @@ export default function AdminCoursesPage() {
 
   const reloadCourses = async () => {
     setLoading(true);
-    try { const data = await fetchAdminCourseInsights(); setItems(data.courses || data || []); }
-    catch { setItems([]); } finally { setLoading(false); }
+    try {
+      const data = await fetchAdminCourseInsights();
+      // API returns { items: [...], total: N }
+      const list = Array.isArray(data) ? data : (data.courses || data.items || []);
+      setItems(list);
+    } catch { setItems([]); } finally { setLoading(false); }
   };
   useEffect(() => { reloadCourses(); }, []);
 
@@ -124,6 +131,19 @@ export default function AdminCoursesPage() {
 
   const cf = (key) => (e) => setCourseForm(s => ({ ...s, [key]: e.target.value }));
   const cfN = (key) => (e) => setCourseForm(s => ({ ...s, [key]: Number(e.target.value || 0) }));
+
+  const uploadThumbnail = async (file) => {
+    if (!file) return;
+    setThumbUploading(true);
+    try {
+      const fd = new FormData(); fd.append("file", file);
+      const { data } = await api.post("/api/admin/upload-thumbnail", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      setCourseForm(s => ({ ...s, thumbnail: data.url }));
+      toast.success("Thumbnail uploaded!");
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || "Upload failed");
+    } finally { setThumbUploading(false); }
+  };
 
   // ── Question panel handlers ───────────────────────────────────────────────
   const loadQuestions = async (lessonId) => {
@@ -235,7 +255,22 @@ export default function AdminCoursesPage() {
             <div className="grid gap-3 md:grid-cols-2">
               <label className="text-sm"><span className="mb-1 block font-medium">Slug</span><input className="w-full rounded-lg border p-2 bg-transparent" required placeholder="python-bootcamp" value={courseForm.slug} onChange={cf("slug")} disabled={courseModal === "edit"} /></label>
               <label className="text-sm"><span className="mb-1 block font-medium">Title</span><input className="w-full rounded-lg border p-2 bg-transparent" required value={courseForm.title} onChange={cf("title")} /></label>
-              <label className="text-sm md:col-span-2"><span className="mb-1 block font-medium">Thumbnail URL</span><input className="w-full rounded-lg border p-2 bg-transparent" placeholder="/images/python-logo.png" value={courseForm.thumbnail} onChange={cf("thumbnail")} /></label>
+              <div className="text-sm md:col-span-2">
+                <span className="mb-1 block font-medium">Thumbnail</span>
+                <div className="flex gap-2 items-start">
+                  <div className="flex-1">
+                    <input className="w-full rounded-lg border p-2 bg-transparent text-sm" placeholder="/images/python-logo.png or paste URL" value={courseForm.thumbnail} onChange={cf("thumbnail")} />
+                  </div>
+                  {courseForm.thumbnail && (
+                    <img src={courseForm.thumbnail} alt="thumb" className="h-10 w-16 rounded-lg object-cover border flex-shrink-0" onError={e => e.target.style.display='none'} />
+                  )}
+                </div>
+                <label className={`mt-2 flex w-fit cursor-pointer items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium hover:border-brand-primary hover:text-brand-primary transition ${thumbUploading ? "opacity-50 cursor-not-allowed" : ""}`}>
+                  <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                  {thumbUploading ? "Uploading…" : "Upload Image"}
+                  <input type="file" accept="image/jpeg,image/png,image/webp,image/svg+xml" className="hidden" disabled={thumbUploading} onChange={e => uploadThumbnail(e.target.files[0])} />
+                </label>
+              </div>
               <label className="text-sm md:col-span-2"><span className="mb-1 block font-medium">Description</span><textarea className="w-full rounded-lg border p-2 bg-transparent" rows={4} value={courseForm.description} onChange={cf("description")} /></label>
               <label className="text-sm"><span className="mb-1 block font-medium">Price (INR)</span><input type="number" className="w-full rounded-lg border p-2 bg-transparent" value={courseForm.price} onChange={cfN("price")} /></label>
               <label className="text-sm"><span className="mb-1 block font-medium">Discount Price (INR)</span><input type="number" className="w-full rounded-lg border p-2 bg-transparent" value={courseForm.discountPrice} onChange={cfN("discountPrice")} /></label>
