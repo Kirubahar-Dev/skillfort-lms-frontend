@@ -44,6 +44,8 @@ export default function AdminCoursesPage() {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const [thumbUploading, setThumbUploading] = useState(false);
+  const [formVideoUploading, setFormVideoUploading] = useState(false);
+  const [formVideoProgress, setFormVideoProgress] = useState(0);
 
   // Questions panel
   const [questionPanelId, setQuestionPanelId] = useState(null);   // lesson id whose panel is open
@@ -131,6 +133,39 @@ export default function AdminCoursesPage() {
 
   const cf = (key) => (e) => setCourseForm(s => ({ ...s, [key]: e.target.value }));
   const cfN = (key) => (e) => setCourseForm(s => ({ ...s, [key]: Number(e.target.value || 0) }));
+
+  const uploadVideoForForm = async (file) => {
+    if (!file) return;
+    setFormVideoUploading(true); setFormVideoProgress(0);
+    const ticker = setInterval(() => setFormVideoProgress(p => Math.min(p + 6, 88)), 400);
+    try {
+      // If editing an existing lesson, upload directly (saves to DB + returns URL)
+      if (lessonForm.id) {
+        const res = await uploadLessonVideoFile(lessonForm.id, file);
+        clearInterval(ticker); setFormVideoProgress(100);
+        setLessonForm(s => ({ ...s, video_url: res.video_url }));
+        toast.success("Video uploaded & saved!");
+        // Refresh lesson list
+        const data = await fetchCourseLessons(syllabusModal.id);
+        setLessons(data || []);
+      } else {
+        // New lesson — upload to generic endpoint, get URL, fill form field
+        const fd = new FormData(); fd.append("file", file);
+        const { data } = await api.post("/api/admin/upload-video", fd, {
+          headers: { "Content-Type": "multipart/form-data" },
+          timeout: 600000,
+        });
+        clearInterval(ticker); setFormVideoProgress(100);
+        setLessonForm(s => ({ ...s, video_url: data.url }));
+        toast.success("Video uploaded! Save the lesson to attach it.");
+      }
+    } catch (e) {
+      clearInterval(ticker);
+      toast.error(e?.response?.data?.detail || "Video upload failed");
+    } finally {
+      setTimeout(() => { setFormVideoUploading(false); setFormVideoProgress(0); }, 800);
+    }
+  };
 
   const uploadThumbnail = async (file) => {
     if (!file) return;
@@ -514,7 +549,31 @@ export default function AdminCoursesPage() {
               <form onSubmit={onSubmitLesson} className="space-y-3">
                 <label className="block text-sm"><span className="mb-1 block font-medium">Section</span><input className="w-full rounded-lg border p-2 bg-transparent text-sm" required placeholder="Getting Started" value={lessonForm.section_title} onChange={e => setLessonForm(s => ({ ...s, section_title: e.target.value }))} /></label>
                 <label className="block text-sm"><span className="mb-1 block font-medium">Lesson Title</span><input className="w-full rounded-lg border p-2 bg-transparent text-sm" required placeholder="Introduction" value={lessonForm.lesson_title} onChange={e => setLessonForm(s => ({ ...s, lesson_title: e.target.value }))} /></label>
-                <label className="block text-sm"><span className="mb-1 block font-medium">Video URL</span><input className="w-full rounded-lg border p-2 bg-transparent text-sm" placeholder="https://youtube.com/..." value={lessonForm.video_url} onChange={e => setLessonForm(s => ({ ...s, video_url: e.target.value }))} /></label>
+                <div className="block text-sm">
+                  <span className="mb-1 block font-medium">Video</span>
+                  {/* URL input */}
+                  <input
+                    className="w-full rounded-lg border p-2 bg-transparent text-sm"
+                    placeholder="Paste YouTube / direct video URL…"
+                    value={lessonForm.video_url}
+                    onChange={e => setLessonForm(s => ({ ...s, video_url: e.target.value }))}
+                  />
+                  {/* File upload button */}
+                  <label className={`mt-2 flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-medium text-slate-500 transition hover:border-brand-primary hover:text-brand-primary dark:border-white/20 ${formVideoUploading ? "opacity-60 cursor-not-allowed" : ""}`}>
+                    {formVideoUploading ? (
+                      <><svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>Uploading {formVideoProgress}%</>
+                    ) : (
+                      <><svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>Upload Video File (mp4 / webm / mov)</>
+                    )}
+                    <input type="file" accept="video/mp4,video/webm,video/ogg,video/quicktime,video/x-msvideo" className="hidden" disabled={formVideoUploading} onChange={e => { if (e.target.files[0]) uploadVideoForForm(e.target.files[0]); }} />
+                  </label>
+                  {formVideoUploading && (
+                    <div className="mt-1 h-1.5 w-full rounded-full bg-slate-200 dark:bg-white/10">
+                      <div className="h-1.5 rounded-full bg-brand-primary transition-all duration-300" style={{ width: `${formVideoProgress}%` }} />
+                    </div>
+                  )}
+                  {lessonForm.video_url && <p className="mt-1 text-xs text-emerald-600 truncate">✓ {lessonForm.video_url}</p>}
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <label className="block text-sm"><span className="mb-1 block font-medium">Duration (min)</span><input type="number" className="w-full rounded-lg border p-2 bg-transparent text-sm" value={lessonForm.duration_minutes} onChange={e => setLessonForm(s => ({ ...s, duration_minutes: Number(e.target.value) }))} /></label>
                   <label className="block text-sm"><span className="mb-1 block font-medium">Order</span><input type="number" className="w-full rounded-lg border p-2 bg-transparent text-sm" value={lessonForm.order_index} onChange={e => setLessonForm(s => ({ ...s, order_index: Number(e.target.value) }))} /></label>
