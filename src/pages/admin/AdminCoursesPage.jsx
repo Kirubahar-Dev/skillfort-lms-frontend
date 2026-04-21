@@ -3,6 +3,10 @@ import toast from "react-hot-toast";
 import { createCourse, createCourseLesson, deleteCourse, deleteCourseLesson, fetchCourseLessons, updateCourse, updateCourseLesson } from "../../services/courseService";
 import { fetchAdminCourseInsights } from "../../services/adminService";
 import { getAdminCourseProgress, updateLessonVideo, uploadLessonVideoFile } from "../../services/learnService";
+import {
+  adminGetLessonQuestions, adminGenerateQuestions, adminApproveQuestion,
+  adminRejectQuestion, adminDeleteQuestion, adminAddQuestion, adminUpdateQuestion,
+} from "../../services/quizService";
 
 function Modal({ title, onClose, children, wide }) {
   return (
@@ -37,6 +41,15 @@ export default function AdminCoursesPage() {
   const [progressData, setProgressData] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
+  // Questions panel
+  const [questionPanelId, setQuestionPanelId] = useState(null);   // lesson id whose panel is open
+  const [lessonQuestions, setLessonQuestions] = useState({});      // {lessonId: []}
+  const [generatingId, setGeneratingId] = useState(null);
+  const [addQForm, setAddQForm] = useState(null);                  // lessonId or null
+  const [newQ, setNewQ] = useState({ question:"",option_a:"",option_b:"",option_c:"",option_d:"",correct_option:"A",explanation:"" });
+  const [editQId, setEditQId] = useState(null);
+  const [editQData, setEditQData] = useState({});
 
   const reloadCourses = async () => {
     setLoading(true);
@@ -111,6 +124,67 @@ export default function AdminCoursesPage() {
 
   const cf = (key) => (e) => setCourseForm(s => ({ ...s, [key]: e.target.value }));
   const cfN = (key) => (e) => setCourseForm(s => ({ ...s, [key]: Number(e.target.value || 0) }));
+
+  // ── Question panel handlers ───────────────────────────────────────────────
+  const loadQuestions = async (lessonId) => {
+    try {
+      const qs = await adminGetLessonQuestions(lessonId);
+      setLessonQuestions(prev => ({ ...prev, [lessonId]: qs }));
+    } catch { toast.error("Could not load questions"); }
+  };
+
+  const toggleQuestionPanel = (lessonId) => {
+    if (questionPanelId === lessonId) { setQuestionPanelId(null); return; }
+    setQuestionPanelId(lessonId);
+    loadQuestions(lessonId);
+  };
+
+  const handleGenerate = async (lessonId) => {
+    setGeneratingId(lessonId);
+    try {
+      const res = await adminGenerateQuestions(lessonId);
+      toast.success(`✨ ${res.generated} questions generated! Review and approve below.`);
+      await loadQuestions(lessonId);
+    } catch (e) {
+      toast.error(e?.response?.data?.detail || "Generation failed. Check ANTHROPIC_API_KEY.");
+    } finally { setGeneratingId(null); }
+  };
+
+  const handleApprove = async (lessonId, qId) => {
+    await adminApproveQuestion(qId);
+    await loadQuestions(lessonId);
+    toast.success("Question approved ✓");
+  };
+  const handleReject = async (lessonId, qId) => {
+    await adminRejectQuestion(qId);
+    await loadQuestions(lessonId);
+  };
+  const handleDeleteQ = async (lessonId, qId) => {
+    if (!window.confirm("Delete this question?")) return;
+    await adminDeleteQuestion(qId);
+    await loadQuestions(lessonId);
+    toast.success("Deleted");
+  };
+
+  const handleAddQ = async (lessonId) => {
+    if (!newQ.question.trim()) { toast.error("Question text required"); return; }
+    try {
+      await adminAddQuestion(lessonId, newQ);
+      toast.success("Question added & approved");
+      setAddQForm(null);
+      setNewQ({ question:"",option_a:"",option_b:"",option_c:"",option_d:"",correct_option:"A",explanation:"" });
+      await loadQuestions(lessonId);
+    } catch (e) { toast.error(e?.response?.data?.detail || "Failed to add"); }
+  };
+
+  const handleSaveEditQ = async (lessonId, qId) => {
+    try {
+      await adminUpdateQuestion(qId, editQData);
+      setEditQId(null); setEditQData({});
+      await loadQuestions(lessonId);
+      toast.success("Question updated");
+    } catch { toast.error("Update failed"); }
+  };
 
   return (
     <div>
@@ -197,6 +271,9 @@ export default function AdminCoursesPage() {
                           </div>
                           <div className="flex gap-1 flex-shrink-0">
                             <button onClick={() => setLessonForm({ ...l })} className="rounded border px-2 py-1 text-xs hover:bg-slate-100 dark:border-white/20 dark:hover:bg-white/10">Edit</button>
+                            <button onClick={() => toggleQuestionPanel(l.id)} className={`rounded border px-2 py-1 text-xs ${questionPanelId === l.id ? "bg-brand-primary/20 border-brand-primary text-brand-primary" : "hover:bg-slate-100 dark:border-white/20 dark:hover:bg-white/10"}`}>
+                              📝 Quiz
+                            </button>
                             <button onClick={() => onDeleteLesson(l.id)} className="rounded border px-2 py-1 text-xs text-rose-500 hover:bg-rose-50">Del</button>
                           </div>
                         </div>
@@ -265,6 +342,133 @@ export default function AdminCoursesPage() {
                             </div>
                           )}
                         </div>
+
+                        {/* ── Questions Panel ── */}
+                        {questionPanelId === l.id && (
+                          <div className="mt-3 rounded-xl border-2 border-brand-primary/30 bg-brand-primary/5 p-3">
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                              <p className="text-xs font-bold uppercase tracking-wide text-brand-primary flex items-center gap-1.5">
+                                📝 Quiz Questions
+                                {(lessonQuestions[l.id] || []).length > 0 && (
+                                  <span className="rounded-full bg-brand-primary text-slate-900 px-1.5 py-0.5 text-xs">
+                                    {(lessonQuestions[l.id] || []).filter(q => q.status === "approved").length} approved
+                                  </span>
+                                )}
+                              </p>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => handleGenerate(l.id)}
+                                  disabled={generatingId === l.id}
+                                  className="flex items-center gap-1.5 rounded-lg bg-brand-primary px-3 py-1.5 text-xs font-semibold text-slate-900 hover:opacity-90 disabled:opacity-60"
+                                >
+                                  {generatingId === l.id ? (
+                                    <><svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"/></svg>Generating…</>
+                                  ) : "⚡ Generate with AI"}
+                                </button>
+                                <button
+                                  onClick={() => setAddQForm(addQForm === l.id ? null : l.id)}
+                                  className="rounded-lg border border-brand-primary/40 px-3 py-1.5 text-xs font-semibold text-brand-primary hover:bg-brand-primary/10"
+                                >
+                                  + Add Manually
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Add manually form */}
+                            {addQForm === l.id && (
+                              <div className="mb-3 rounded-lg border border-brand-primary/20 bg-white p-3 dark:bg-white/5 space-y-2">
+                                <p className="text-xs font-semibold text-slate-500 mb-2">New Question</p>
+                                <textarea rows={2} placeholder="Question text" className="w-full rounded-lg border p-2 text-xs bg-transparent" value={newQ.question} onChange={e => setNewQ(s => ({...s, question: e.target.value}))} />
+                                <div className="grid grid-cols-2 gap-2">
+                                  {["A","B","C","D"].map(opt => (
+                                    <input key={opt} placeholder={`Option ${opt}`} className="rounded-lg border p-2 text-xs bg-transparent" value={newQ[`option_${opt.toLowerCase()}`]} onChange={e => setNewQ(s => ({...s, [`option_${opt.toLowerCase()}`]: e.target.value}))} />
+                                  ))}
+                                </div>
+                                <div className="flex gap-2 items-center">
+                                  <label className="text-xs font-medium">Correct:</label>
+                                  {["A","B","C","D"].map(opt => (
+                                    <label key={opt} className={`flex items-center gap-1 cursor-pointer rounded-lg px-2 py-1 text-xs border ${newQ.correct_option === opt ? "border-brand-primary bg-brand-primary text-slate-900" : "border-slate-200 dark:border-white/10"}`}>
+                                      <input type="radio" className="sr-only" checked={newQ.correct_option === opt} onChange={() => setNewQ(s => ({...s, correct_option: opt}))} /> {opt}
+                                    </label>
+                                  ))}
+                                </div>
+                                <input placeholder="Explanation (optional)" className="w-full rounded-lg border p-2 text-xs bg-transparent" value={newQ.explanation} onChange={e => setNewQ(s => ({...s, explanation: e.target.value}))} />
+                                <div className="flex gap-2">
+                                  <button onClick={() => handleAddQ(l.id)} className="rounded-lg bg-brand-primary px-3 py-1.5 text-xs font-semibold text-slate-900">Save Question</button>
+                                  <button onClick={() => setAddQForm(null)} className="rounded-lg border px-3 py-1.5 text-xs">Cancel</button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Question list */}
+                            {(lessonQuestions[l.id] || []).length === 0 ? (
+                              <p className="py-4 text-center text-xs text-slate-400">
+                                No questions yet. Click <strong>⚡ Generate with AI</strong> to auto-generate from lesson content.
+                              </p>
+                            ) : (
+                              <div className="space-y-2">
+                                {(lessonQuestions[l.id] || []).map((q, qi) => (
+                                  <div key={q.id} className={`rounded-lg border p-3 text-xs ${q.status === "approved" ? "border-emerald-200 bg-emerald-50 dark:border-emerald-800/20 dark:bg-emerald-900/10" : q.status === "rejected" ? "border-red-200 bg-red-50 dark:border-red-800/20 dark:bg-red-900/10 opacity-60" : "border-amber-200 bg-amber-50 dark:border-amber-800/20 dark:bg-amber-900/10"}`}>
+                                    {editQId === q.id ? (
+                                      /* Edit form */
+                                      <div className="space-y-2">
+                                        <textarea rows={2} className="w-full rounded border p-1.5 text-xs bg-white dark:bg-white/5" value={editQData.question ?? q.question} onChange={e => setEditQData(s => ({...s, question: e.target.value}))} />
+                                        <div className="grid grid-cols-2 gap-1.5">
+                                          {["A","B","C","D"].map(opt => (
+                                            <input key={opt} placeholder={`Option ${opt}`} className="rounded border p-1.5 text-xs bg-white dark:bg-white/5" value={editQData[`option_${opt.toLowerCase()}`] ?? q[`option_${opt.toLowerCase()}`]} onChange={e => setEditQData(s => ({...s, [`option_${opt.toLowerCase()}`]: e.target.value}))} />
+                                          ))}
+                                        </div>
+                                        <div className="flex gap-1.5 items-center">
+                                          <span className="text-xs font-medium">Correct:</span>
+                                          {["A","B","C","D"].map(opt => (
+                                            <label key={opt} className={`cursor-pointer rounded px-1.5 py-0.5 border text-xs ${(editQData.correct_option ?? q.correct_option) === opt ? "bg-brand-primary text-slate-900 border-brand-primary" : "border-slate-200 dark:border-white/10"}`}>
+                                              <input type="radio" className="sr-only" checked={(editQData.correct_option ?? q.correct_option) === opt} onChange={() => setEditQData(s => ({...s, correct_option: opt}))} /> {opt}
+                                            </label>
+                                          ))}
+                                        </div>
+                                        <input placeholder="Explanation" className="w-full rounded border p-1.5 text-xs bg-white dark:bg-white/5" value={editQData.explanation ?? q.explanation ?? ""} onChange={e => setEditQData(s => ({...s, explanation: e.target.value}))} />
+                                        <div className="flex gap-1.5">
+                                          <button onClick={() => handleSaveEditQ(l.id, q.id)} className="rounded bg-brand-primary px-2 py-1 text-xs font-semibold text-slate-900">Save</button>
+                                          <button onClick={() => { setEditQId(null); setEditQData({}); }} className="rounded border px-2 py-1 text-xs">Cancel</button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      /* View mode */
+                                      <>
+                                        <div className="flex items-start justify-between gap-2 mb-1.5">
+                                          <p className="font-semibold text-xs leading-snug flex-1">
+                                            Q{qi + 1}. {q.question}
+                                          </p>
+                                          <div className="flex gap-1 flex-shrink-0">
+                                            <span className={`rounded-full px-1.5 py-0.5 text-xs font-medium ${q.status === "approved" ? "bg-emerald-200 text-emerald-800" : q.status === "rejected" ? "bg-red-200 text-red-800" : "bg-amber-200 text-amber-800"}`}>
+                                              {q.status}
+                                            </span>
+                                            {q.source === "ai" && <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-xs text-purple-700">AI</span>}
+                                          </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-1 mb-1.5">
+                                          {["A","B","C","D"].map(opt => (
+                                            <div key={opt} className={`rounded px-2 py-1 text-xs ${q.correct_option === opt ? "bg-emerald-100 text-emerald-800 font-semibold dark:bg-emerald-900/30 dark:text-emerald-300" : "text-slate-600 dark:text-slate-400"}`}>
+                                              {opt}. {q[`option_${opt.toLowerCase()}`]}
+                                            </div>
+                                          ))}
+                                        </div>
+                                        {q.explanation && <p className="text-slate-400 text-xs italic mb-1.5">💡 {q.explanation}</p>}
+                                        <div className="flex gap-1 pt-1 border-t border-black/5 dark:border-white/10">
+                                          {q.status !== "approved" && <button onClick={() => handleApprove(l.id, q.id)} className="rounded bg-emerald-500 px-2 py-0.5 text-xs text-white hover:bg-emerald-600">✓ Approve</button>}
+                                          {q.status !== "rejected" && <button onClick={() => handleReject(l.id, q.id)} className="rounded bg-red-100 px-2 py-0.5 text-xs text-red-700 hover:bg-red-200">✗ Reject</button>}
+                                          <button onClick={() => { setEditQId(q.id); setEditQData({}); }} className="rounded border px-2 py-0.5 text-xs hover:bg-slate-100 dark:border-white/20 dark:hover:bg-white/10">Edit</button>
+                                          <button onClick={() => handleDeleteQ(l.id, q.id)} className="rounded border px-2 py-0.5 text-xs text-rose-500 hover:bg-rose-50">Delete</button>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
